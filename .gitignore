@@ -41,3 +41,13 @@ vite.config.d.ts
 
 # logs
 npm-debug.log*
+
+# build/cache
+dist
+.vite
+node_modules
+*.tsbuildinfo
+
+# backups
+*.bak
+*.legacy.bak

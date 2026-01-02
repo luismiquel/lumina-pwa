@@ -1,14 +1,14 @@
 ﻿const CACHE = "lumina-pwa-v1";
 const CORE = ["/", "/index.html", "/manifest.webmanifest"];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting())
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil((async () => {
+self.addEventListener("activate", (e) => {
+  e.waitUntil((async () => {
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k))));
     await self.clients.claim();
@@ -17,53 +17,46 @@ self.addEventListener("activate", (event) => {
 
 function allowed(req) {
   if (req.method !== "GET") return false;
-  let url;
-  try { url = new URL(req.url); } catch { return false; }
-  if (url.protocol !== "http:" && url.protocol !== "https:") return false;
-  if (url.origin !== self.location.origin) return false;
+  let u;
+  try { u = new URL(req.url); } catch { return false; }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return false;   // bloquea chrome-extension
+  if (u.origin !== self.location.origin) return false;                    // bloquea terceros
   return true;
 }
 
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
+self.addEventListener("fetch", (e) => {
+  const req = e.request;
   if (!allowed(req)) return;
 
   const accept = req.headers.get("accept") || "";
   const isHTML = req.mode === "navigate" || accept.includes("text/html");
 
   if (isHTML) {
-    event.respondWith(networkFirstHTML(req));
-    return;
+    e.respondWith(networkFirst(req));
+  } else {
+    e.respondWith(cacheFirst(req));
   }
-
-  event.respondWith(cacheFirstAsset(req));
 });
 
-async function networkFirstHTML(request) {
+async function networkFirst(req) {
   const cache = await caches.open(CACHE);
   try {
-    const res = await fetch(request);
-    if (res && res.ok && res.type === "basic") {
-      await cache.put("/index.html", res.clone());
-    }
+    const res = await fetch(req);
     return res;
   } catch {
-    const fallback = await cache.match("/index.html");
-    if (fallback) return fallback;
-    return new Response("Offline", { status: 503, statusText: "Offline (Lumina PWA)" });
+    const cached = await cache.match("/index.html");
+    return cached || new Response("Offline", { status: 503, statusText: "Offline (Lumina PWA)" });
   }
 }
 
-async function cacheFirstAsset(request) {
+async function cacheFirst(req) {
   const cache = await caches.open(CACHE);
-  const cached = await cache.match(request);
+  const cached = await cache.match(req);
   if (cached) return cached;
 
   try {
-    const res = await fetch(request);
-    if (res && res.ok && res.type === "basic") {
-      await cache.put(request, res.clone());
-    }
+    const res = await fetch(req);
+    if (res && res.ok && res.type === "basic") await cache.put(req, res.clone());
     return res;
   } catch {
     return new Response("", { status: 504, statusText: "Offline asset" });
