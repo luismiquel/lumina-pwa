@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Eye, EyeOff, Lock, X } from "lucide-react";
 
 type Mode = "EXPORT" | "IMPORT";
@@ -12,11 +12,12 @@ export default function PasswordModal(props: {
 }) {
   const { open, mode, onCancel, onConfirm, busy } = props;
   const [show, setShow] = useState(false);
-  const [p1, setP1] = useState("");
+  const rootRef = useRef<HTMLDivElement | null>(null);
+const [p1, setP1] = useState("");
   const [p2, setP2] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!open) return;
     setShow(false);
     setP1("");
@@ -24,7 +25,50 @@ export default function PasswordModal(props: {
     setErr(null);
   }, [open]);
 
-  const needConfirm = mode === "EXPORT";
+  // Focus trap + ESC
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (busy) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const root = rootRef.current;
+      if (!root) return;
+
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+      ).filter((el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"));
+
+      if (focusables.length === 0) return;
+
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, busy, onCancel]);const needConfirm = mode === "EXPORT";
 
   const strength = useMemo(() => {
     const p = p1;
@@ -53,7 +97,7 @@ export default function PasswordModal(props: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={busy ? undefined : onCancel} />
-      <div className="relative w-full max-w-[520px] glass rounded-3xl border border-white/10 p-6">
+      <div ref={rootRef} role="dialog" aria-modal="true" aria-label="Contraseña" className="relative w-full max-w-[520px] glass rounded-3xl border border-white/10 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-black text-lg">
             <Lock /> {mode === "EXPORT" ? "Export cifrado" : "Import cifrado"}
@@ -130,3 +174,4 @@ export default function PasswordModal(props: {
     </div>
   );
 }
+

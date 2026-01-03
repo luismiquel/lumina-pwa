@@ -123,7 +123,7 @@ return (
           <input value={title} onChange={(e)=>setTitle(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Título (Cardiólogo, Analítica…)" />
           <input value={place} onChange={(e)=>setPlace(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Lugar (opcional)" />
           <input value={doctor} onChange={(e)=>setDoctor(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Doctor/a (opcional)" />
-          <input type="datetime-local" value={dt} onChange={(e)=>setDt(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" />
+          <input type="datetime-local" value={dt} aria-label="Fecha y hora" onChange={(e)=>setDt(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" />
           <button onClick={add} className="bg-[#00f2ff] text-black font-black rounded-2xl py-4 flex items-center justify-center gap-2">
             <CalendarPlus/> Guardar cita
           </button>
@@ -151,6 +151,8 @@ return (
     </div>
   );
 }
+
+
 
 
 

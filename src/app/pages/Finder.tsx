@@ -41,7 +41,7 @@ export default function Finder(props: { senior: boolean }) {
         <h2 className={"font-black flex items-center gap-2 " + (senior ? "text-3xl" : "text-xl")}><MapPin/> GPS emergencia</h2>
         <p className="opacity-70 mt-2">Obtén un enlace de ubicación y compártelo.</p>
 
-        <button onClick={locate} className="mt-4 bg-[#00f2ff] text-black font-black rounded-2xl py-4 w-full">
+        <button onClick={locate} aria-label="Localizar ahora" className="mt-4 bg-[#00f2ff] text-black font-black rounded-2xl py-4 w-full">
           Localizar ahora
         </button>
 
@@ -66,4 +66,5 @@ export default function Finder(props: { senior: boolean }) {
     </div>
   );
 }
+
 

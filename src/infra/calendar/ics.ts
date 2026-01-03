@@ -95,3 +95,4 @@ export function downloadICS(filename: string, icsText: string) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+

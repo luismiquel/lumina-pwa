@@ -1,15 +1,3 @@
-﻿# Normaliza finales de línea para evitar warnings CRLF/LF
-* text=auto
-
-# Mantén LF para código
-*.ts  text eol=lf
-*.tsx text eol=lf
-*.js  text eol=lf
-*.css text eol=lf
-*.html text eol=lf
-*.json text eol=lf
-*.md text eol=lf
-
-# Service worker / manifest
-public/sw.js text eol=lf
-public/manifest.webmanifest text eol=lf
+﻿* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
