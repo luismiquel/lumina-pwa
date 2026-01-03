@@ -18,9 +18,11 @@ import { Card } from "@/app/components/Card";
 import { NotesRepo } from "@/infra/db/repos";
 import type { Note } from "@/domain/models/entities";
 
-export function NotesPage(props: { senior?: boolean }) {
+export function NotesPage(props: { senior?: boolean; readOnly?: boolean }) {
   const { senior } = props;
-  const [items, setItems] = useState<Note[]>([]);
+  
+  const readOnly = !!props.readOnly;
+const [items, setItems] = useState<Note[]>([]);
   
 
   
@@ -42,7 +44,7 @@ export function NotesPage(props: { senior?: boolean }) {
     for (const it of arr) await repoPutOne(repo, it);
   };
 
-  const removeWithUndo = async (id: string) => {
+  const removeWithUndo = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = NotesRepo as any;
     const it = (items as any[]).find((x) => x?.id === id);
 
@@ -63,7 +65,7 @@ export function NotesPage(props: { senior?: boolean }) {
     }
   };
 
-  const clearAllWithUndo = async () => {
+  const clearAllWithUndo = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = NotesRepo as any;
     const before = [...items];
 
@@ -87,7 +89,35 @@ export function NotesPage(props: { senior?: boolean }) {
       },
     });
   };
-  /* /LUMINA_UNDO_NOTES */const exportCsv = async () => {
+  /* /LUMINA_UNDO_NOTES */
+
+  // Compat: handler esperado por el JSX
+  const add = async () => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    const repo: any = NotesRepo as any;
+
+    const title = prompt("Título:")?.trim() || "Sin título";
+    const content = prompt("Contenido:") ?? "";
+    const tags = (prompt("Tags (separados por coma):") ?? "")
+      .split(",")
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+    if (typeof repo.add === "function") {
+      await repo.add(title, content, tags);
+    } else {
+      const note = { id: crypto.randomUUID(), title, content, tags, createdAt: Date.now(), updatedAt: Date.now() };
+      if (typeof repo.upsert === "function") await repo.upsert(note);
+      else if (typeof repo.put === "function") await repo.put(note);
+      else if (typeof repo.save === "function") await repo.save(note);
+      else {
+        alert("Repositorio de notas sin add/upsert/put/save.");
+        return;
+      }
+    }
+
+    await refresh();
+  };const exportCsv = async () => {
     const repo: any = NotesRepo as any;
     const list: any[] = await repo.list();
     const csv = exportNotesCsv(list as any);
@@ -162,7 +192,7 @@ export function NotesPage(props: { senior?: boolean }) {
 
   useEffect(() => { refresh(); }, []);
 
-  const add = async () => {
+  const addNote = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     if (!title.trim() && !content.trim()) return;
     const t = tags.split(",").map(s => s.trim()).filter(Boolean);
     await NotesRepo.add(title || "Sin título", content, t);
@@ -229,6 +259,10 @@ export function NotesPage(props: { senior?: boolean }) {
     </>
 );
 }
+
+
+
+
 
 
 

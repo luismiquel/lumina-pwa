@@ -18,9 +18,11 @@ import { Card } from "@/app/components/Card";
 import { ShoppingRepo } from "@/infra/db/repos";
 import type { ShoppingItem } from "@/domain/models/entities";
 
-export function ShoppingPage(props: { senior?: boolean }) {
+export function ShoppingPage(props: { senior?: boolean; readOnly?: boolean }) {
   const { senior } = props;
-  const [items, setItems] = useState<ShoppingItem[]>([]);
+  
+  const readOnly = !!props.readOnly;
+const [items, setItems] = useState<ShoppingItem[]>([]);
   
 
   
@@ -43,7 +45,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
     for (const it of arr) await repoPutOne(repo, it);
   };
 
-  const clearAllWithUndo = async () => {
+  const clearAllWithUndo = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = ShoppingRepo as any;
     const before = [...items];
 
@@ -68,7 +70,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
     });
   };
 
-  const removeWithUndo = async (id: string) => {
+  const removeWithUndo = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = ShoppingRepo as any;
     const it = (items as any[]).find((x) => x?.id === id);
 
@@ -88,7 +90,75 @@ export function ShoppingPage(props: { senior?: boolean }) {
       });
     }
   };
-  /* /LUMINA_UNDO_BLOCK */const exportCsv = async () => {
+  /* /LUMINA_UNDO_BLOCK */
+
+  // Compat: handlers esperados por el JSX
+  const add = async () => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    const repo: any = ShoppingRepo as any;
+
+    // intenta leer el input "text" si existe en el estado local (best effort)
+    // si tu componente ya maneja el texto en otra variable, este add seguirá funcionando si repo.add acepta string vacío (no debería).
+    // Por eso: pedimos por prompt si no hay forma local.
+    let text = "";
+    try {
+      const el = document.querySelector<HTMLInputElement>('input[type="text"], input[placeholder], textarea');
+      text = (el?.value ?? "").trim();
+      if (el && text) el.value = "";
+    } catch {}
+
+    if (!text) {
+      text = prompt("Nuevo elemento:")?.trim() ?? "";
+    }
+    if (!text) return;
+
+    if (typeof repo.add === "function") await repo.add(text);
+    else if (typeof repo.upsert === "function" || typeof repo.put === "function" || typeof repo.save === "function") {
+      const item = { id: crypto.randomUUID(), text, completed: false, createdAt: Date.now(), updatedAt: Date.now() };
+      if (typeof repo.upsert === "function") await repo.upsert(item);
+      else if (typeof repo.put === "function") await repo.put(item);
+      else await repo.save(item);
+    } else {
+      alert("Repositorio de compras sin add/upsert/put/save.");
+      return;
+    }
+
+    await refresh();
+  };
+
+  const toggle = async (id: string) => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    const repo: any = ShoppingRepo as any;
+
+    if (typeof repo.toggle === "function") {
+      await repo.toggle(id);
+      await refresh();
+      return;
+    }
+    if (typeof repo.done === "function") {
+      await repo.done(id);
+      await refresh();
+      return;
+    }
+    if (typeof repo.setCompleted === "function") {
+      // best effort: invierte el estado local
+      const it = (items as any[]).find((x) => x?.id === id);
+      await repo.setCompleted(id, !it?.completed);
+      await refresh();
+      return;
+    }
+
+    // Fallback: si tenemos el item en memoria, lo invertimos y lo guardamos
+    const it = (items as any[]).find((x) => x?.id === id);
+    if (!it) return;
+    const next = { ...it, completed: !it.completed, updatedAt: Date.now() };
+    if (typeof repo.upsert === "function") await repo.upsert(next);
+    else if (typeof repo.put === "function") await repo.put(next);
+    else if (typeof repo.save === "function") await repo.save(next);
+    else return;
+
+    await refresh();
+  };const exportCsv = async () => {
     const repo: any = ShoppingRepo as any;
     const list: any[] = await repo.list();
     const csv = exportShoppingCsv(list as any);
@@ -153,7 +223,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
     const data = await ShoppingRepo.list();
     
 
-  const clearAllWithUndo = async () => {
+  const clearAllWithUndo = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = ShoppingRepo as any;
     const before = [...items];
 
@@ -180,7 +250,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
     });
   };
 
-  const removeWithUndo = async (id: string) => {
+  const removeWithUndo = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = ShoppingRepo as any;
     const it = items.find((x: any) => x.id === id);
 
@@ -207,14 +277,14 @@ export function ShoppingPage(props: { senior?: boolean }) {
   };
   useEffect(() => { refresh(); }, []);
 
-  const add = async () => {
+  const addItem = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     if (!text.trim()) return;
     await ShoppingRepo.add(text);
     setText("");
     await refresh();
   };
 
-  const toggle = async (id: string) => { await ShoppingRepo.toggle(id); await refresh(); };
+  const toggleItem = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; } await ShoppingRepo.toggle(id); await refresh(); };
   const del = async (id: string) => {       if (!confirmDanger("¿Borrar este elemento de la lista?")) return;
       await removeWithUndo(id);await refresh(); };
 
@@ -251,6 +321,10 @@ export function ShoppingPage(props: { senior?: boolean }) {
     </>
 );
 }
+
+
+
+
 
 
 
