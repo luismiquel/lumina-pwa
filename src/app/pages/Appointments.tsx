@@ -10,9 +10,67 @@ import type { Appointment } from "@/domain/models/entities";
 import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 import { parseICS } from "@/infra/calendar/icsImport";
 import { db } from "@/infra/db/db";
-export default function Appointments(props: { senior: boolean }) {
+export default function Appointments(props: { senior: boolean; readOnly?: boolean }) {
   const { senior } = props;
-  const [list, setList] = useState<Appointment[]>([]);
+  
+  const readOnly = !!props.readOnly;
+
+
+  /* LUMINA_READONLY_APPOINTMENTS_COMPAT */
+  const add = async () => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+
+    const title = prompt("Título de la cita:")?.trim() || "Cita";
+    const dateTimeISO = prompt("Fecha/hora ISO (ej: 2026-01-03T12:30):")?.trim();
+
+    if (!dateTimeISO) return;
+
+    const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
+
+    // si tienes repositorio en el archivo con otro nombre, intentamos db directo
+    try {
+      if (repo?.add) {
+        await repo.add({ id: crypto.randomUUID(), title, dateTimeISO, createdAt: Date.now(), updatedAt: Date.now() });
+      } else {
+        // fallback: intenta db.appointments.add si existe
+        const dbAny: any = (globalThis as any).db;
+        if (dbAny?.appointments?.add) {
+          await dbAny.appointments.add({ id: crypto.randomUUID(), title, dateTimeISO, createdAt: Date.now(), updatedAt: Date.now() });
+        } else {
+          alert("No encuentro AppointmentsRepo ni db.appointments.add.");
+          return;
+        }
+      }
+    } catch (e: any) {
+      alert(e?.message ?? "No se pudo añadir la cita.");
+      return;
+    }
+
+    try { location.reload(); } catch {}};
+
+  const remove = async (id: string) => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+
+    const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
+
+    try {
+      if (repo?.remove) await repo.remove(id);
+      else if (repo?.delete) await repo.delete(id);
+      else {
+        const dbAny: any = (globalThis as any).db;
+        if (dbAny?.appointments?.delete) await dbAny.appointments.delete(id);
+        else {
+          alert("No encuentro AppointmentsRepo.remove/delete ni db.appointments.delete.");
+          return;
+        }
+      }
+    } catch (e: any) {
+      alert(e?.message ?? "No se pudo borrar la cita.");
+      return;
+    }
+
+    try { location.reload(); } catch {}};
+  /* /LUMINA_READONLY_APPOINTMENTS_COMPAT */const [list, setList] = useState<Appointment[]>([]);
   const [title, setTitle] = useState("");
   const [place, setPlace] = useState("");
   const [doctor, setDoctor] = useState("");
@@ -21,7 +79,7 @@ export default function Appointments(props: { senior: boolean }) {
   const load = async () => setList(await AppointmentsRepo.list());
   useEffect(() => { load(); }, []);
 
-  const add = async () => {
+  const addAppointment = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
     if (!title.trim() || !dt) return;
     await AppointmentsRepo.add({
       title: title.trim(),
@@ -34,7 +92,7 @@ export default function Appointments(props: { senior: boolean }) {
     await load();
   };
 
-  const remove = async (id: string) => {       if (!confirmDanger("¿Borrar esta cita?")) return;
+  const removeAppointment = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; }       if (!confirmDanger("¿Borrar esta cita?")) return;
       await AppointmentsRepo.remove(id);await load(); };
 
   const upcoming = useMemo(
@@ -93,6 +151,9 @@ return (
     </div>
   );
 }
+
+
+
 
 
 
