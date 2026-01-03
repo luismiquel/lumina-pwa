@@ -1,7 +1,8 @@
-﻿import { resetSWAndCaches } from "@/swRegister";
+﻿import { clearAllCaches, deleteAllIndexedDb, getSwStatus, hardReload, unregisterAllServiceWorkers } from "@/app/utils/repair";
+import { resetSWAndCaches } from "@/swRegister";
 import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { db } from "@/infra/db/db";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Lock, Upload } from "lucide-react";
 import { exportBackup, importBackup, type BackupV1 } from "@/infra/db/backup";
 import { useSettings } from "@/app/hooks/useSettings";
@@ -27,7 +28,12 @@ export default function Settings() {
 
   
 
-  const repairApp = async () => {
+  
+  const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boolean; registration: boolean; registrations?: number } | null>(null);
+
+  useEffect(() => {
+    getSwStatus().then(setSwStatus).catch(() => setSwStatus(null));
+  }, []);const repairApp = async () => {
     const ok = confirmDanger(
       "Reparar app: se borrará la caché (Service Worker + caches) y se recargará.\n\nNo borra tus datos (notas/citas/compras).\n\n¿Continuar?"
     );
@@ -167,6 +173,13 @@ const restoreFromObject = async (obj: unknown) => {
         Modo Senior: {settings.seniorMode ? "ON" : "OFF"}
       </button>
 
+      <button
+        onClick={() => update({ readOnlyMode: !settings.readOnlyMode })}
+        className="w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4"
+      >
+        Modo Solo Lectura: {settings.readOnlyMode ? "ON" : "OFF"}
+      </button>
+
       <div className="grid grid-cols-1 gap-2">
         <button
           disabled={busy}
@@ -270,6 +283,9 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
+
 
 
 
