@@ -29,5 +29,9 @@
                         },
     "include":  [
                     "src"
+                ],
+    "exclude":  [
+                    "src/_trash",
+                    "src/_legacy"
                 ]
 }
