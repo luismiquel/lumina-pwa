@@ -1,4 +1,9 @@
-﻿import { clearAllCaches, deleteAllIndexedDb, getSwStatus, hardReload, unregisterAllServiceWorkers } from "@/app/utils/repair";
+﻿import { importAllFromZipBytes } from "@/infra/bundle/importBundle";
+import { decryptEncFile, encryptZipAndDownload } from "@/infra/crypto/zipCrypto";
+import { buildExportZipBytes } from "@/infra/bundle/exportBundle";
+import { importAllFromZip } from "@/infra/bundle/importBundle";
+import { exportAllAsZip } from "@/infra/bundle/exportBundle";
+import { clearAllCaches, deleteAllIndexedDb, getSwStatus, hardReload, unregisterAllServiceWorkers } from "@/app/utils/repair";
 import { resetSWAndCaches } from "@/swRegister";
 import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { db } from "@/infra/db/db";
@@ -29,7 +34,9 @@ export default function Settings() {
   
 
   
-  const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boolean; registration: boolean; registrations?: number } | null>(null);
+  
+  const readOnly = !!settings?.readOnlyMode;
+const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boolean; registration: boolean; registrations?: number } | null>(null);
 
   useEffect(() => {
     getSwStatus().then(setSwStatus).catch(() => setSwStatus(null));
@@ -218,6 +225,18 @@ const restoreFromObject = async (obj: unknown) => {
 
 <p className="text-xs opacity-50">Último backup: {last}</p>
 
+      <button
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          try { await exportAllAsZip(); }
+          finally { setBusy(false); }
+        }}
+        className="w-full bg-emerald-400 text-black font-black rounded-2xl py-4 disabled:opacity-30"
+      >
+        EXPORT TODO (.zip)
+      </button>
+
       {/* Modal simple de contraseña */}
       {pwOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
@@ -283,6 +302,9 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
+
 
 
 

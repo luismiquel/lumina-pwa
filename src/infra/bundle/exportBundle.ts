@@ -16,7 +16,7 @@ function downloadBlob(name: string, blob: Blob) {
   URL.revokeObjectURL(url);
 }
 
-export async function exportAllAsZip() {
+export async function buildExportZipBytes() {
   // 1) JSON backup (ya existente)
   const backup = await exportBackup();
 
@@ -58,7 +58,21 @@ export async function exportAllAsZip() {
 
     const zipArray = zip instanceof Uint8Array ? zip : new Uint8Array(zip as any);
   const zipBuf = zipArray.buffer.slice(zipArray.byteOffset, zipArray.byteOffset + zipArray.byteLength);
-  downloadBlob(`lumina_export_${stamp}.zip`, new Blob([zipBuf], { type: "application/zip" }));
+  return { zip, stamp };}
+
+
+
+export async function exportAllAsZip() {
+  const { zip, stamp } = await buildExportZipBytes();
+  const zipArray = zip instanceof Uint8Array ? zip : new Uint8Array(zip as any);
+  const zipBuf = zipArray.buffer.slice(zipArray.byteOffset, zipArray.byteOffset + zipArray.byteLength);
+  const blob = new Blob([zipBuf], { type: "application/zip" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `lumina_export_${stamp}.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
-
-

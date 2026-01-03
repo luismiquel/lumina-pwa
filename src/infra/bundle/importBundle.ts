@@ -12,7 +12,7 @@ function pickText(files: Record<string, Uint8Array>, name: string) {
   const v = (files as any)[key]; if (!v) return null; return strFromU8(v);
 }
 
-export async function importAllFromZip(file: File, readOnly: boolean) {
+export async function importAllFromZipBytes(zipBytes: Uint8Array, readOnly: boolean) {
   if (readOnly) {
     alert("Modo solo lectura. Desactívalo para importar.");
     return;
@@ -27,8 +27,7 @@ export async function importAllFromZip(file: File, readOnly: boolean) {
   );
   if (!ok2) return;
 
-  const u8 = new Uint8Array(await file.arrayBuffer());
-  const files = unzipSync(u8);
+  const files = unzipSync(zipBytes);
 
   // 1) Si hay backup.json, es la vía principal (replace total)
   const backupTxt = pickText(files as any, "backup.json");
@@ -66,3 +65,8 @@ export async function importAllFromZip(file: File, readOnly: boolean) {
 }
 
 
+
+export async function importAllFromZip(file: File, readOnly: boolean) {
+  const u8 = new Uint8Array(await file.arrayBuffer());
+  return importAllFromZipBytes(u8, readOnly);
+}
