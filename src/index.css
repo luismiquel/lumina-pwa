@@ -18,3 +18,47 @@
   border-radius: 16px;
 }
 
+
+
+
+
+/* =========================
+   Senior Mode PRO (global)
+   - 100% local, sin dependencias
+   - Aumenta legibilidad y targets táctiles
+========================= */
+html[data-senior="1"] {
+  font-size: 18px;          /* sube base */
+  line-height: 1.35;
+}
+
+html[data-senior="1"] body {
+  letter-spacing: 0.1px;
+}
+
+/* Botón grande reusable (si quieres adoptarlo en páginas nuevas) */
+.senior-btn {
+  min-height: 56px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 1.05rem;
+}
+
+/* Inputs más cómodos */
+html[data-senior="1"] input,
+html[data-senior="1"] textarea,
+html[data-senior="1"] select {
+  font-size: 1.05rem;
+}
+
+/* Reduce densidad visual */
+html[data-senior="1"] .opacity-50 { opacity: 0.65; }
+html[data-senior="1"] .opacity-60 { opacity: 0.72; }
+html[data-senior="1"] .opacity-70 { opacity: 0.78; }
+
+/* Mejora foco accesible */
+html[data-senior="1"] :focus-visible {
+  outline: 2px solid rgba(0, 242, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 14px;
+}

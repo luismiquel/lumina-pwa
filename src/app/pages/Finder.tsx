@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+﻿import { shareText } from "@/app/utils/share";
+import { useState } from "react";
 import { Copy, MapPin, Send } from "lucide-react";
 
 export default function Finder(props: { senior: boolean }) {
@@ -24,6 +25,11 @@ export default function Finder(props: { senior: boolean }) {
     alert("Enlace copiado.");
   };
 
+    const share = async () => {
+    if (!link) return;
+    await shareText("Mi ubicación (Lumina)", "Mi ubicación: " + link);
+  };
+
   const wa = () => {
     if (!link) return;
     window.open("https://wa.me/?text=" + encodeURIComponent("Mi ubicación: " + link), "_blank");
@@ -46,7 +52,7 @@ export default function Finder(props: { senior: boolean }) {
             <div className="glass rounded-2xl p-4 border border-white/10 break-all text-sm opacity-80">
               {link}
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button onClick={copyLink} className="bg-white/10 border border-white/10 font-black rounded-2xl py-3 inline-flex items-center justify-center gap-2">
                 <Copy/> Copiar
               </button>
@@ -60,3 +66,4 @@ export default function Finder(props: { senior: boolean }) {
     </div>
   );
 }
+

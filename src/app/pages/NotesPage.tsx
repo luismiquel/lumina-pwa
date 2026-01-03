@@ -1,4 +1,5 @@
-﻿import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
+﻿import { shareText } from "@/app/utils/share";
+import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useState } from "react";
@@ -88,6 +89,7 @@ export function NotesPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
 
 
 

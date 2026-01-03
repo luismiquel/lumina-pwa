@@ -1,4 +1,5 @@
-﻿import { confirmDanger } from "@/app/utils/confirm";
+﻿import { shareText } from "@/app/utils/share";
+import { confirmDanger } from "@/app/utils/confirm";
 import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useMemo, useState } from "react";
@@ -92,6 +93,7 @@ return (
     </div>
   );
 }
+
 
 
 
