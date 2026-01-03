@@ -54,7 +54,12 @@ export default function AppShell() {
               <div className="text-xs opacity-50">Offline · Sin IA · Sin APIs de pago</div>
             </div>
 
-            <button onClick={() => go("SETTINGS")} className="opacity-70 hover:opacity-100" aria-label="Configuración">
+            <button
+              onClick={() => go("SETTINGS")}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Abrir ajustes"
+              title="Ajustes"
+            >
               <SettingsIcon />
             </button>
           </div>
@@ -71,22 +76,27 @@ export default function AppShell() {
 
         <nav className="absolute bottom-0 left-0 right-0 p-4 bg-black/70 border-t border-white/10 backdrop-blur-xl">
           <div className="grid grid-cols-6 gap-2">
-            <NavBtn senior={senior} onClick={() => go("HOME")} active={view === "HOME"}>
+            <NavBtn ariaLabel="Inicio" senior={senior} onClick={() => go("HOME")} active={view === "HOME"}>
               <Home size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn senior={senior} onClick={() => go("APPOINTMENTS")} active={view === "APPOINTMENTS"}>
+
+            <NavBtn ariaLabel="Citas" senior={senior} onClick={() => go("APPOINTMENTS")} active={view === "APPOINTMENTS"}>
               <CalendarDays size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn senior={senior} onClick={() => go("SHOPPING")} active={view === "SHOPPING"}>
+
+            <NavBtn ariaLabel="Compras" senior={senior} onClick={() => go("SHOPPING")} active={view === "SHOPPING"}>
               <ShoppingCart size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn senior={senior} onClick={() => go("DICTATION")} active={view === "DICTATION"}>
+
+            <NavBtn ariaLabel="Dictado" senior={senior} onClick={() => go("DICTATION")} active={view === "DICTATION"}>
               <Mic size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn senior={senior} onClick={() => go("FINDER")} active={view === "FINDER"}>
+
+            <NavBtn ariaLabel="GPS emergencia" senior={senior} onClick={() => go("FINDER")} active={view === "FINDER"}>
               <MapPin size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn senior={senior} onClick={() => go("SETTINGS")} active={view === "SETTINGS"}>
+
+            <NavBtn ariaLabel="Ajustes" senior={senior} onClick={() => go("SETTINGS")} active={view === "SETTINGS"}>
               <SettingsIcon size={senior ? 22 : 20} />
             </NavBtn>
           </div>
@@ -99,9 +109,11 @@ export default function AppShell() {
   );
 }
 
-function NavBtn(props: { senior: boolean; active: boolean; onClick: () => void; children: any }) {
+function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; onClick: () => void; children: any }) {
   return (
     <button
+      aria-label={props.ariaLabel}
+      title={props.ariaLabel}
       onClick={props.onClick}
       className={
         "rounded-2xl border transition " +
