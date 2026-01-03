@@ -1,4 +1,6 @@
-﻿import { exportShoppingCsv, importShoppingCsv } from "@/infra/csv/shoppingCsv";
+﻿import UndoToast from "@/app/components/UndoToast";
+import { useUndo } from "@/app/hooks/useUndo";
+import { exportShoppingCsv, importShoppingCsv } from "@/infra/csv/shoppingCsv";
 function downloadTextFile(name: string, content: string, mime = "text/plain") {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -21,7 +23,72 @@ export function ShoppingPage(props: { senior?: boolean }) {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   
 
-  const exportCsv = async () => {
+  
+
+  /* LUMINA_UNDO_BLOCK */
+  const { action: undoAction, push: pushUndo, undo: doUndo, clear: clearUndo } = useUndo(9000);
+
+  const repoPutOne = async (repo: any, item: any) => {
+    if (!item) return;
+    if (typeof repo.put === "function") return repo.put(item);
+    if (typeof repo.upsert === "function") return repo.upsert(item);
+    if (typeof repo.save === "function") return repo.save(item);
+    // fallback mínimo si solo existe add(text)
+    if (typeof repo.add === "function") return repo.add(item.text ?? item.title ?? "Sin título");
+  };
+
+  const repoPutMany = async (repo: any, arr: any[]) => {
+    if (!arr?.length) return;
+    if (typeof repo.bulkPut === "function") return repo.bulkPut(arr);
+    for (const it of arr) await repoPutOne(repo, it);
+  };
+
+  const clearAllWithUndo = async () => {
+    const repo: any = ShoppingRepo as any;
+    const before = [...items];
+
+    if (typeof repo.clear === "function") await repo.clear();
+    else if (typeof repo.clearAll === "function") await repo.clearAll();
+    else if (typeof repo.reset === "function") await repo.reset();
+    else {
+      for (const it of before) {
+        if (typeof repo.remove === "function") await repo.remove(it.id);
+        else if (typeof repo.delete === "function") await repo.delete(it.id);
+      }
+    }
+
+    await refresh();
+
+    pushUndo({
+      label: "Lista vaciada.",
+      run: async () => {
+        await repoPutMany(repo, before);
+        await refresh();
+      },
+    });
+  };
+
+  const removeWithUndo = async (id: string) => {
+    const repo: any = ShoppingRepo as any;
+    const it = (items as any[]).find((x) => x?.id === id);
+
+    if (typeof repo.remove === "function") await repo.remove(id);
+    else if (typeof repo.delete === "function") await repo.delete(id);
+    else return;
+
+    await refresh();
+
+    if (it) {
+      pushUndo({
+        label: "Elemento borrado.",
+        run: async () => {
+          await repoPutOne(repo, it);
+          await refresh();
+        },
+      });
+    }
+  };
+  /* /LUMINA_UNDO_BLOCK */const exportCsv = async () => {
     const repo: any = ShoppingRepo as any;
     const list: any[] = await repo.list();
     const csv = exportShoppingCsv(list as any);
@@ -84,7 +151,55 @@ export function ShoppingPage(props: { senior?: boolean }) {
 
     const refresh = async () => {
     const data = await ShoppingRepo.list();
-    setItems(data as any);
+    
+
+  const clearAllWithUndo = async () => {
+    const repo: any = ShoppingRepo as any;
+    const before = [...items];
+
+    // intenta varias APIs de borrado
+    if (typeof repo.clear === "function") await repo.clear();
+    else if (typeof repo.clearAll === "function") await repo.clearAll();
+    else if (typeof repo.reset === "function") await repo.reset();
+    else {
+      // si no hay clear: borra uno a uno si existe delete/remove
+      for (const it of before) {
+        if (typeof repo.remove === "function") await repo.remove(it.id);
+        else if (typeof repo.delete === "function") await repo.delete(it.id);
+      }
+    }
+
+    await refresh();
+
+    pushUndo({
+      label: "Lista vaciada.",
+      run: async () => {
+        await repoPutMany(repo, before);
+        await refresh();
+      },
+    });
+  };
+
+  const removeWithUndo = async (id: string) => {
+    const repo: any = ShoppingRepo as any;
+    const it = items.find((x: any) => x.id === id);
+
+    if (typeof repo.remove === "function") await repo.remove(id);
+    else if (typeof repo.delete === "function") await repo.delete(id);
+    else return;
+
+    await refresh();
+
+    if (it) {
+      pushUndo({
+        label: "Elemento borrado.",
+        run: async () => {
+          await repoPutOne(repo, it);
+          await refresh();
+        },
+      });
+    }
+  };setItems(data as any);
     const t = consumeNavTarget();
     if (t?.kind === "SHOPPING") {
       requestAnimationFrame(() => { focusByLuminaId(t.id); });
@@ -101,9 +216,11 @@ export function ShoppingPage(props: { senior?: boolean }) {
 
   const toggle = async (id: string) => { await ShoppingRepo.toggle(id); await refresh(); };
   const del = async (id: string) => {       if (!confirmDanger("¿Borrar este elemento de la lista?")) return;
-      await ShoppingRepo.remove(id);await refresh(); };
+      await removeWithUndo(id);await refresh(); };
 
   return (
+  <>
+    <UndoToast show={!!undoAction} label={undoAction?.label} onUndo={doUndo} onClose={clearUndo} />
     <div className="flex flex-col gap-6">
       <Card title="Suministros">
         <div className="flex gap-3">
@@ -131,8 +248,14 @@ export function ShoppingPage(props: { senior?: boolean }) {
         {items.length === 0 && <p className="text-center text-white/30">Inventario completo</p>}
       </div>
     </div>
-  );
+    </>
+);
 }
+
+
+
+
+
 
 
 
