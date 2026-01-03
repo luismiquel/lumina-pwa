@@ -35,7 +35,9 @@ export default function AppShell() {
   const [view, setView] = useState<View>("HOME");
   const senior = !!settings?.seniorMode;
 
-  const { haptic } = useSeniorUX(senior);
+  
+  const readOnly = !!settings?.readOnlyMode;
+const { haptic } = useSeniorUX(senior);
 
   const go = (v: View) => {
     haptic(12);
@@ -68,7 +70,7 @@ export default function AppShell() {
         <main className="p-6 overflow-y-auto" style={{ height: "calc(92vh - 86px - 84px)" }}>
           {view === "HOME" && <HomePage onGo={setView} senior={senior} />}
           {view === "APPOINTMENTS" && <Appointments senior={senior} />}
-          {view === "SHOPPING" && <Shopping senior={senior} />}
+          {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} />}
           {view === "DICTATION" && <Dictation senior={senior} />}
           {view === "FINDER" && <Finder senior={senior} />}
           {view === "SETTINGS" && <Settings />}
@@ -127,4 +129,7 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
 

@@ -3,7 +3,7 @@ import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react";
 import { ShoppingRepo } from "@/infra/db/repositories";
 import type { ShoppingItem } from "@/domain/models/entities";
 
-export default function Shopping(props: { senior: boolean }) {
+export default function Shopping(props: { senior: boolean; readOnly?: boolean }) {
   const { senior } = props;
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [text, setText] = useState("");
@@ -52,3 +52,4 @@ export default function Shopping(props: { senior: boolean }) {
     </div>
   );
 }
+
