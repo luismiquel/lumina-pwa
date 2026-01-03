@@ -3,6 +3,7 @@ import { CalendarPlus, Trash2 } from "lucide-react";
 import { AppointmentsRepo } from "@/infra/db/repositories";
 import type { Appointment } from "@/domain/models/entities";
 
+import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 export default function Appointments(props: { senior: boolean }) {
   const { senior } = props;
   const [list, setList] = useState<Appointment[]>([]);
@@ -71,3 +72,4 @@ export default function Appointments(props: { senior: boolean }) {
     </div>
   );
 }
+
