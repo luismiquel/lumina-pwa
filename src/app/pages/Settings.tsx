@@ -1,4 +1,5 @@
-﻿import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
+﻿import { resetSWAndCaches } from "@/swRegister";
+import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { db } from "@/infra/db/db";
 import { useMemo, useState } from "react";
 import { Download, Lock, Upload } from "lucide-react";
@@ -24,7 +25,23 @@ export default function Settings() {
   const { settings, update } = useSettings();
   const [busy, setBusy] = useState(false);
 
-  const [pwOpen, setPwOpen] = useState<null | "EXPORT" | "IMPORT">(null);
+  
+
+  const repairApp = async () => {
+    const ok = confirmDanger(
+      "Reparar app: se borrará la caché (Service Worker + caches) y se recargará.\n\nNo borra tus datos (notas/citas/compras).\n\n¿Continuar?"
+    );
+    if (!ok) return;
+
+    setBusy(true);
+    try {
+      await resetSWAndCaches();
+      alert("Caché limpiada. Recargando…");
+      location.reload();
+    } finally {
+      setBusy(false);
+    }
+  };const [pwOpen, setPwOpen] = useState<null | "EXPORT" | "IMPORT">(null);
   const [pw, setPw] = useState("");
   const [pendingEncrypted, setPendingEncrypted] = useState<EncryptedBackupV1 | null>(null);
 
@@ -178,7 +195,15 @@ const restoreFromObject = async (obj: unknown) => {
         </label>
       </div>
 
-      <p className="text-xs opacity-50">Último backup: {last}</p>
+            <button
+        disabled={busy}
+        onClick={repairApp}
+        className="w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4 disabled:opacity-30"
+      >
+        Reparar app (limpiar caché)
+      </button>
+
+<p className="text-xs opacity-50">Último backup: {last}</p>
 
       {/* Modal simple de contraseña */}
       {pwOpen && (
@@ -245,6 +270,12 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
