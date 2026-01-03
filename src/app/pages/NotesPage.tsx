@@ -1,4 +1,13 @@
-﻿import { shareText } from "@/app/utils/share";
+﻿function downloadTextFile(name: string, content: string, mime = "text/plain") {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+import { exportNotesCsv, importNotesCsv } from "@/infra/csv/notesCsv";
+import { shareText } from "@/app/utils/share";
 import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
@@ -10,7 +19,69 @@ import type { Note } from "@/domain/models/entities";
 export function NotesPage(props: { senior?: boolean }) {
   const { senior } = props;
   const [items, setItems] = useState<Note[]>([]);
-  const [title, setTitle] = useState("");
+  
+
+  const exportCsv = async () => {
+    const repo: any = NotesRepo as any;
+    const list: any[] = await repo.list();
+    const csv = exportNotesCsv(list as any);
+    const name = `lumina_notes_${new Date().toISOString().slice(0,10)}.csv`;
+    downloadTextFile(name, csv, "text/csv;charset=utf-8");
+  };
+
+  const importCsv = async (file?: File) => {
+    if (!file) return;
+    const ok = confirmDanger(
+      "Vas a IMPORTAR un CSV y AÑADIR notas.\n\nNo borra lo existente.\n\n¿Continuar?"
+    );
+    if (!ok) return;
+
+    const txt = await file.text();
+    const rows = importNotesCsv(txt);
+
+    if (!rows.length) {
+      alert("CSV vacío o inválido.");
+      return;
+    }
+
+    const repo: any = NotesRepo as any;
+
+    for (const r of rows) {
+      const title = String(r.title ?? "Sin título");
+      const content = String(r.content ?? "");
+      const tags = Array.isArray(r.tags) ? r.tags : [];
+
+      // Preferimos add(title, content, tags)
+      if (typeof repo.add === "function") {
+        await repo.add(title, content, tags);
+        continue;
+      }
+
+      // Fallback a upsert/put/save si existen
+      const note = {
+        id: crypto.randomUUID(),
+        title,
+        content,
+        tags,
+        createdAt: Number(r.createdAt) || Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      if (typeof repo.upsert === "function") {
+        await repo.upsert(note);
+      } else if (typeof repo.put === "function") {
+        await repo.put(note);
+      } else if (typeof repo.save === "function") {
+        await repo.save(note);
+      } else {
+        alert("Tu repositorio de notas no expone add/upsert/put/save.");
+        break;
+      }
+    }
+
+    alert(`Importado: ${rows.length} filas (se añadieron las válidas).`);
+    await refresh();
+  };const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
 
@@ -89,6 +160,7 @@ export function NotesPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
 
 
 
