@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 
 import { useSettings } from "@/app/hooks/useSettings";
+import { useSeniorUX } from "@/app/hooks/useSeniorUX";
+
 import HomePage from "@/app/pages/Home";
 import Shopping from "@/app/pages/Shopping";
 import Appointments from "@/app/pages/Appointments";
@@ -25,12 +27,20 @@ type View =
   | "SHOPPING"
   | "DICTATION"
   | "FINDER"
-  | "SETTINGS";
+  | "SETTINGS"
+  | "NOTES";
 
 export default function AppShell() {
   const { settings } = useSettings();
   const [view, setView] = useState<View>("HOME");
   const senior = !!settings?.seniorMode;
+
+  const { haptic } = useSeniorUX(senior);
+
+  const go = (v: View) => {
+    haptic(12);
+    setView(v);
+  };
 
   return (
     <div className="min-h-screen bg-[#020408] text-white flex items-center justify-center p-3">
@@ -43,7 +53,8 @@ export default function AppShell() {
               </div>
               <div className="text-xs opacity-50">Offline · Sin IA · Sin APIs de pago</div>
             </div>
-            <button onClick={() => setView("SETTINGS")} className="opacity-70 hover:opacity-100" aria-label="Configuración">
+
+            <button onClick={() => go("SETTINGS")} className="opacity-70 hover:opacity-100" aria-label="Configuración">
               <SettingsIcon />
             </button>
           </div>
@@ -60,28 +71,27 @@ export default function AppShell() {
 
         <nav className="absolute bottom-0 left-0 right-0 p-4 bg-black/70 border-t border-white/10 backdrop-blur-xl">
           <div className="grid grid-cols-6 gap-2">
-            <NavBtn onClick={() => setView("HOME")} active={view === "HOME"}>
-              <Home size={20} />
+            <NavBtn senior={senior} onClick={() => go("HOME")} active={view === "HOME"}>
+              <Home size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn onClick={() => setView("APPOINTMENTS")} active={view === "APPOINTMENTS"}>
-              <CalendarDays size={20} />
+            <NavBtn senior={senior} onClick={() => go("APPOINTMENTS")} active={view === "APPOINTMENTS"}>
+              <CalendarDays size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn onClick={() => setView("SHOPPING")} active={view === "SHOPPING"}>
-              <ShoppingCart size={20} />
+            <NavBtn senior={senior} onClick={() => go("SHOPPING")} active={view === "SHOPPING"}>
+              <ShoppingCart size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn onClick={() => setView("DICTATION")} active={view === "DICTATION"}>
-              <Mic size={20} />
+            <NavBtn senior={senior} onClick={() => go("DICTATION")} active={view === "DICTATION"}>
+              <Mic size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn onClick={() => setView("FINDER")} active={view === "FINDER"}>
-              <MapPin size={20} />
+            <NavBtn senior={senior} onClick={() => go("FINDER")} active={view === "FINDER"}>
+              <MapPin size={senior ? 22 : 20} />
             </NavBtn>
-            <NavBtn onClick={() => setView("SETTINGS")} active={view === "SETTINGS"}>
-              <SettingsIcon size={20} />
+            <NavBtn senior={senior} onClick={() => go("SETTINGS")} active={view === "SETTINGS"}>
+              <SettingsIcon size={senior ? 22 : 20} />
             </NavBtn>
           </div>
         </nav>
 
-        {/* UI global (dentro del Shell, no fuera) */}
         <UpdateToast />
         <OfflineBadge />
       </div>
@@ -89,12 +99,13 @@ export default function AppShell() {
   );
 }
 
-function NavBtn(props: { active: boolean; onClick: () => void; children: any }) {
+function NavBtn(props: { senior: boolean; active: boolean; onClick: () => void; children: any }) {
   return (
     <button
       onClick={props.onClick}
       className={
-        "rounded-2xl py-3 border transition " +
+        "rounded-2xl border transition " +
+        (props.senior ? "py-4 min-h-[56px] " : "py-3 ") +
         (props.active
           ? "bg-[#00f2ff]/15 border-[#00f2ff]/40 text-[#00f2ff]"
           : "bg-white/5 border-white/10 opacity-70 hover:opacity-100")
