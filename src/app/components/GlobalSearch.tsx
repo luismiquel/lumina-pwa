@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { setNavTarget } from "@/app/nav/navTarget";
+import { useEffect, useMemo, useState } from "react";
 import { Search, FileText, ShoppingCart, CalendarDays, X } from "lucide-react";
 import { db } from "@/infra/db/db";
 import type { Note, ShoppingItem, Appointment } from "@/domain/models/entities";
@@ -109,10 +110,19 @@ export default function GlobalSearch(props: { senior: boolean; onGo: (v: View) =
     return out.slice(0, 25);
   }, [q, notes, shopping, appointments]);
 
-  const go = (r: Result) => {
-    if (r.kind === "NOTE") onGo("NOTES");
-    if (r.kind === "SHOPPING") onGo("SHOPPING");
-    if (r.kind === "APPOINTMENT") onGo("APPOINTMENTS");
+    const go = (r: Result) => {
+    if (r.kind === "NOTE") {
+      setNavTarget({ kind: "NOTE", id: r.id, query: q });
+      onGo("NOTES");
+      return;
+    }
+    if (r.kind === "SHOPPING") {
+      setNavTarget({ kind: "SHOPPING", id: r.id, query: q });
+      onGo("SHOPPING");
+      return;
+    }
+    setNavTarget({ kind: "APPOINTMENT", id: r.id, query: q });
+    onGo("APPOINTMENTS");
   };
 
   return (
@@ -187,3 +197,6 @@ export default function GlobalSearch(props: { senior: boolean; onGo: (v: View) =
     </div>
   );
 }
+
+
+

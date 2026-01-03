@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from "react";
+﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+import { consumeNavTarget } from "@/app/nav/navTarget";
+import { useEffect, useState } from "react";
 import { Card } from "@/app/components/Card";
 import { ShoppingRepo } from "@/infra/db/repos";
 import type { ShoppingItem } from "@/domain/models/entities";
@@ -8,7 +10,14 @@ export function ShoppingPage(props: { senior?: boolean }) {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [text, setText] = useState("");
 
-  const refresh = async () => setItems(await ShoppingRepo.list());
+    const refresh = async () => {
+    const data = await ShoppingRepo.list();
+    setItems(data as any);
+    const t = consumeNavTarget();
+    if (t?.kind === "SHOPPING") {
+      requestAnimationFrame(() => { focusByLuminaId(t.id); });
+    }
+  };
   useEffect(() => { refresh(); }, []);
 
   const add = async () => {
@@ -34,7 +43,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
 
       <div className="space-y-3">
         {items.map(i => (
-          <div key={i.id} className={["glass border rounded-3xl p-5 flex justify-between items-center cursor-pointer",
+          <div key={i.id} data-lumina-id={i.id} className={["glass border rounded-3xl p-5 flex justify-between items-center cursor-pointer",
             i.completed ? "border-white/5 opacity-40" : "border-white/10 hover:border-[#00f2ff]/30"].join(" ")}
             onClick={() => toggle(i.id)}
           >
@@ -51,3 +60,7 @@ export function ShoppingPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
+
+
+

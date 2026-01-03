@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from "react";
+﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+import { consumeNavTarget } from "@/app/nav/navTarget";
+import { useEffect, useState } from "react";
 import { Card } from "@/app/components/Card";
 import { NotesRepo } from "@/infra/db/repos";
 import type { Note } from "@/domain/models/entities";
@@ -10,7 +12,14 @@ export function NotesPage(props: { senior?: boolean }) {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
 
-  const refresh = async () => setItems(await NotesRepo.list());
+    const refresh = async () => {
+    const data = await NotesRepo.list();
+    setItems(data as any);
+    const t = consumeNavTarget();
+    if (t?.kind === "NOTE") {
+      requestAnimationFrame(() => { focusByLuminaId(t.id); });
+    }
+  };
 
   useEffect(() => { refresh(); }, []);
 
@@ -58,7 +67,7 @@ export function NotesPage(props: { senior?: boolean }) {
 
       <div className="space-y-3">
         {items.map(n => (
-          <div key={n.id} className="glass border border-white/10 rounded-3xl p-5">
+          <div key={n.id} data-lumina-id={n.id} className="glass border border-white/10 rounded-3xl p-5">
             <div className="flex justify-between gap-4">
               <div className="min-w-0">
                 <p className={["font-black truncate", senior ? "text-2xl" : "text-base"].join(" ")}>{n.title}</p>
@@ -78,3 +87,7 @@ export function NotesPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
+
+
+

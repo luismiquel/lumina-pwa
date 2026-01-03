@@ -1,4 +1,6 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+import { consumeNavTarget } from "@/app/nav/navTarget";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarPlus, Trash2 } from "lucide-react";
 import { AppointmentsRepo } from "@/infra/db/repositories";
 import type { Appointment } from "@/domain/models/entities";
@@ -37,7 +39,21 @@ export default function Appointments(props: { senior: boolean }) {
     [list]
   );
 
-  return (
+  useEffect(() => {
+  const t = consumeNavTarget();
+  if (t?.kind === "APPOINTMENT") {
+    // intentos suaves por si la lista tarda en pintar
+    let tries = 0;
+    const tick = () => {
+      tries++;
+      if (focusByLuminaId(t.id) || tries > 10) return;
+      setTimeout(tick, 120);
+    };
+    tick();
+  }
+}, []);
+
+return (
     <div className="space-y-4">
       <div className="glass rounded-3xl p-6 border border-white/10">
         <h2 className={"font-black " + (senior ? "text-3xl" : "text-xl")}>Citas médicas</h2>
@@ -55,7 +71,7 @@ export default function Appointments(props: { senior: boolean }) {
 
       <div className="space-y-2">
         {upcoming.map(a => (
-          <div key={a.id} className="glass rounded-2xl p-4 border border-white/10 flex justify-between items-center">
+          <div key={a.id} data-lumina-id={a.id} className="glass rounded-2xl p-4 border border-white/10 flex justify-between items-center">
             <div>
               <div className={senior ? "text-2xl font-black" : "text-base font-black"}>{a.title}</div>
               <div className="opacity-60 text-sm">
@@ -74,5 +90,9 @@ export default function Appointments(props: { senior: boolean }) {
     </div>
   );
 }
+
+
+
+
 
 
