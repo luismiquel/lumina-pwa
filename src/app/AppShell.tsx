@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+﻿import type { View } from "./nav";
+import { useState } from "react";
 import {
   Home,
   CalendarDays,
@@ -21,19 +22,18 @@ import Settings from "@/app/pages/Settings";
 import UpdateToast from "@/app/components/UpdateToast";
 import OfflineBadge from "@/app/components/OfflineBadge";
 
-type View =
-  | "HOME"
-  | "APPOINTMENTS"
-  | "SHOPPING"
-  | "DICTATION"
-  | "FINDER"
-  | "SETTINGS"
-  | "NOTES";
 
 export default function AppShell() {
   const { settings } = useSettings();
-  const [view, setView] = useState<View>("HOME");
-  const senior = !!settings?.seniorMode;
+  const [view, setView] = useState<View>(() => ((localStorage.getItem("lumina_seen_guide_v1") ? "HOME" : "GUIDE")));
+    const senior = !!settings?.seniorMode;
+
+  const closeGuide = () => {
+    localStorage.setItem("lumina_seen_guide_v1", "1");
+    setView("HOME");
+  };
+
+  const openGuide = () => { localStorage.setItem("lumina_seen_guide_v1", "1"); setView("GUIDE"); };
 
   
   const readOnly = !!settings?.readOnlyMode;
@@ -129,6 +129,13 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
+
+
+
+
 
 
 
