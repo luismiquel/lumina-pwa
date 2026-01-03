@@ -1,4 +1,6 @@
-﻿function downloadTextFile(name: string, content: string, mime = "text/plain") {
+﻿import UndoToast from "@/app/components/UndoToast";
+import { useUndo } from "@/app/hooks/useUndo";
+function downloadTextFile(name: string, content: string, mime = "text/plain") {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -21,7 +23,71 @@ export function NotesPage(props: { senior?: boolean }) {
   const [items, setItems] = useState<Note[]>([]);
   
 
-  const exportCsv = async () => {
+  
+
+  /* LUMINA_UNDO_NOTES */
+  const { action: undoAction, push: pushUndo, undo: doUndo, clear: clearUndo } = useUndo(9000);
+
+  const repoPutOne = async (repo: any, note: any) => {
+    if (!note) return;
+    if (typeof repo.put === "function") return repo.put(note);
+    if (typeof repo.upsert === "function") return repo.upsert(note);
+    if (typeof repo.save === "function") return repo.save(note);
+    if (typeof repo.add === "function") return repo.add(note.title ?? "Sin título", note.content ?? "", note.tags ?? []);
+  };
+
+  const repoPutMany = async (repo: any, arr: any[]) => {
+    if (!arr?.length) return;
+    if (typeof repo.bulkPut === "function") return repo.bulkPut(arr);
+    for (const it of arr) await repoPutOne(repo, it);
+  };
+
+  const removeWithUndo = async (id: string) => {
+    const repo: any = NotesRepo as any;
+    const it = (items as any[]).find((x) => x?.id === id);
+
+    if (typeof repo.remove === "function") await repo.remove(id);
+    else if (typeof repo.delete === "function") await repo.delete(id);
+    else return;
+
+    await refresh();
+
+    if (it) {
+      pushUndo({
+        label: "Nota borrada.",
+        run: async () => {
+          await repoPutOne(repo, it);
+          await refresh();
+        },
+      });
+    }
+  };
+
+  const clearAllWithUndo = async () => {
+    const repo: any = NotesRepo as any;
+    const before = [...items];
+
+    if (typeof repo.clear === "function") await repo.clear();
+    else if (typeof repo.clearAll === "function") await repo.clearAll();
+    else if (typeof repo.reset === "function") await repo.reset();
+    else {
+      for (const it of before) {
+        if (typeof repo.remove === "function") await repo.remove(it.id);
+        else if (typeof repo.delete === "function") await repo.delete(it.id);
+      }
+    }
+
+    await refresh();
+
+    pushUndo({
+      label: "Notas vaciadas.",
+      run: async () => {
+        await repoPutMany(repo, before);
+        await refresh();
+      },
+    });
+  };
+  /* /LUMINA_UNDO_NOTES */const exportCsv = async () => {
     const repo: any = NotesRepo as any;
     const list: any[] = await repo.list();
     const csv = exportNotesCsv(list as any);
@@ -106,10 +172,12 @@ export function NotesPage(props: { senior?: boolean }) {
 
   const del = async (id: string) => {
           if (!confirmDanger("¿Borrar esta nota?")) return;
-      await NotesRepo.remove(id);await refresh();
+      await removeWithUndo(id);await refresh();
   };
 
   return (
+  <>
+    <UndoToast show={!!undoAction} label={undoAction?.label} onUndo={doUndo} onClose={clearUndo} />
     <div className="flex flex-col gap-6">
       <Card title="Notas">
         <input
@@ -158,8 +226,10 @@ export function NotesPage(props: { senior?: boolean }) {
         {items.length === 0 && <p className="text-center text-white/30">Sin notas</p>}
       </div>
     </div>
-  );
+    </>
+);
 }
+
 
 
 
