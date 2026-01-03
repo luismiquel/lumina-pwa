@@ -119,3 +119,10 @@ export function parseICS(text: string): Appointment[] {
     return true;
   });
 }
+
+
+// Alias estable usado por importBundle
+export function parseIcsToAppointments(text: string) {
+  return parseICS(text) as any;
+}
+
