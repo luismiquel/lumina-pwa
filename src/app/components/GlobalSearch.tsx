@@ -133,11 +133,13 @@ export default function GlobalSearch(props: { senior: boolean; onGo: (v: View) =
             <Search size={22} />
           </div>
 
-          <input
+                    <span id="global-search-hint" style={{ position: "absolute", left: -9999 }}>
+            Escribe al menos 2 caracteres para buscar en notas, compras y citas.
+          </span>
+<input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar en notas, compras y citas…"
-            className={"w-full bg-transparent outline-none " + (senior ? "text-lg" : "text-base")}
+            placeholder="Buscar en notas, compras y citas…" aria-label="Búsqueda global" role="searchbox" aria-describedby="global-search-hint" className={"w-full bg-transparent outline-none " + (senior ? "text-lg" : "text-base")}
             inputMode="search"
           />
 
@@ -197,6 +199,7 @@ export default function GlobalSearch(props: { senior: boolean; onGo: (v: View) =
     </div>
   );
 }
+
 
 
 
