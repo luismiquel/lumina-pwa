@@ -1,4 +1,6 @@
-﻿import { useMemo, useState } from "react";
+﻿import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
+import { db } from "@/infra/db/db";
+import { useMemo, useState } from "react";
 import { Download, Lock, Upload } from "lucide-react";
 import { exportBackup, importBackup, type BackupV1 } from "@/infra/db/backup";
 import { useSettings } from "@/app/hooks/useSettings";
@@ -56,7 +58,32 @@ export default function Settings() {
     }
   };
 
-  const restoreFromObject = async (obj: unknown) => {
+  
+
+  const resetAll = async () => {
+    const ok = confirmDoubleDanger(
+      "RESET TOTAL: Se borrarán TODAS las notas, compras y citas del dispositivo.\n\n¿Seguro?",
+      "Último aviso: esto NO se puede deshacer.\n\n¿Borrar todo ahora?"
+    );
+    if (!ok) return;
+
+    setBusy(true);
+    try {
+      // Borra tablas principales (sin depender de keys antiguas)
+      await db.transaction("rw", db.settings, db.notes, db.shopping, db.appointments, async () => {
+        await db.notes.clear();
+        await db.shopping.clear();
+        await db.appointments.clear();
+        await db.settings.clear();
+      });
+
+      alert("Datos borrados. Reiniciando…");
+      location.reload();
+    } finally {
+      setBusy(false);
+    }
+  };
+const restoreFromObject = async (obj: unknown) => {
     // Soporta plain (BackupV1) y cifrado (EncryptedBackupV1)
     if (isEncryptedBackup(obj)) {
       setPendingEncrypted(obj);
@@ -65,7 +92,12 @@ export default function Settings() {
     }
 
     const data = obj as BackupV1;
-    await importBackup(data);
+          const ok = confirmDanger(
+        "Vas a RESTAURAR un backup y sobrescribir los datos locales.\n\n¿Continuar?"
+      );
+      if (!ok) return;
+
+      await importBackup(data);
     alert("Restaurado OK.");
     location.reload();
   };
@@ -89,6 +121,11 @@ export default function Settings() {
     setBusy(true);
     try {
       const plain = await decryptBackup(passphrase, pendingEncrypted);
+            const ok = confirmDanger(
+        "Vas a RESTAURAR un backup cifrado y sobrescribir los datos locales.\n\n¿Continuar?"
+      );
+      if (!ok) return;
+
       await restoreFromObject(plain);
       setPendingEncrypted(null);
       setPw("");
@@ -208,3 +245,6 @@ export default function Settings() {
     </div>
   );
 }
+
+
+
