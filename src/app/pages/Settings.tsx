@@ -1,4 +1,5 @@
-﻿import { importAllFromZipBytes } from "@/infra/bundle/importBundle";
+﻿import PasswordModal from "@/app/components/PasswordModal";
+import { importAllFromZipBytes } from "@/infra/bundle/importBundle";
 import { decryptEncFile, encryptZipAndDownload } from "@/infra/crypto/zipCrypto";
 import { buildExportZipBytes } from "@/infra/bundle/exportBundle";
 import { importAllFromZip } from "@/infra/bundle/importBundle";
@@ -35,7 +36,10 @@ export default function Settings() {
 
   
   
-  const readOnly = !!settings?.readOnlyMode;
+  
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [pwdMode, setPwdMode] = useState<"EXPORT" | "IMPORT">("EXPORT");
+  const [pendingEncFile, setPendingEncFile] = useState<File | null>(null);const readOnly = !!settings?.readOnlyMode;
 const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boolean; registration: boolean; registrations?: number } | null>(null);
 
   useEffect(() => {
@@ -302,6 +306,7 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
 
 
 
