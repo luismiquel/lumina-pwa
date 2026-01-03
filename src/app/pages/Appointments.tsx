@@ -1,4 +1,5 @@
-﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+﻿import { confirmDanger } from "@/app/utils/confirm";
+import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarPlus, Trash2 } from "lucide-react";
@@ -32,7 +33,8 @@ export default function Appointments(props: { senior: boolean }) {
     await load();
   };
 
-  const remove = async (id: string) => { await AppointmentsRepo.remove(id); await load(); };
+  const remove = async (id: string) => {       if (!confirmDanger("¿Borrar esta cita?")) return;
+      await AppointmentsRepo.remove(id);await load(); };
 
   const upcoming = useMemo(
     () => list.filter(a => new Date(a.dateTimeISO).getTime() >= Date.now()),
@@ -90,6 +92,8 @@ return (
     </div>
   );
 }
+
+
 
 
 

@@ -1,4 +1,5 @@
-﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+﻿import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
+import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useState } from "react";
 import { Card } from "@/app/components/Card";
@@ -28,7 +29,8 @@ export function ShoppingPage(props: { senior?: boolean }) {
   };
 
   const toggle = async (id: string) => { await ShoppingRepo.toggle(id); await refresh(); };
-  const del = async (id: string) => { await ShoppingRepo.remove(id); await refresh(); };
+  const del = async (id: string) => {       if (!confirmDanger("¿Borrar este elemento de la lista?")) return;
+      await ShoppingRepo.remove(id);await refresh(); };
 
   return (
     <div className="flex flex-col gap-6">
@@ -60,6 +62,8 @@ export function ShoppingPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
+
 
 
 

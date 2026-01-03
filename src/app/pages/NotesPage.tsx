@@ -1,4 +1,5 @@
-﻿import { focusByLuminaId } from "@/app/nav/focusHelpers";
+﻿import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
+import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useState } from "react";
 import { Card } from "@/app/components/Card";
@@ -32,8 +33,8 @@ export function NotesPage(props: { senior?: boolean }) {
   };
 
   const del = async (id: string) => {
-    await NotesRepo.remove(id);
-    await refresh();
+          if (!confirmDanger("¿Borrar esta nota?")) return;
+      await NotesRepo.remove(id);await refresh();
   };
 
   return (
@@ -87,6 +88,8 @@ export function NotesPage(props: { senior?: boolean }) {
     </div>
   );
 }
+
+
 
 
 
