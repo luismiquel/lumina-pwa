@@ -1,19 +1,34 @@
-﻿import Dexie, { Table } from "dexie";
-import { DB_NAME, DB_VERSION, STORES_V1 } from "./schema";
-import type { Settings } from "@/domain/models/appState";
+﻿import Dexie, { type Table } from "dexie";
+import type { Settings } from "@/domain/models/settings";
 import type { Note, ShoppingItem, Appointment } from "@/domain/models/entities";
 
-export type SettingsRow = { key: "settings"; value: Settings };
+/**
+ * La app existente (backup.ts / repositories.ts) espera:
+ * - settings como { key, value }
+ * - appointments como Appointment (con dateTimeISO para orderBy)
+ */
+
+export type DbKeyValueRow<T> = {
+  key: string;
+  value: T;
+};
 
 export class LuminaDB extends Dexie {
-  settings!: Table<SettingsRow, string>;
-  notes!: Table<Note, string>;
-  shopping!: Table<ShoppingItem, string>;
+  settings!: Table<DbKeyValueRow<Settings>, string>;
+  notes!: Table<Note & { id: string }, string>;
+  shopping!: Table<ShoppingItem & { id: string }, string>;
   appointments!: Table<Appointment, string>;
 
   constructor() {
-    super(DB_NAME);
-    this.version(DB_VERSION).stores(STORES_V1);
+    super("lumina-db");
+
+    this.version(1).stores({
+      settings: "key",
+      notes: "id",
+      shopping: "id",
+      // primary key id + índice dateTimeISO (lo usa repositories.ts)
+      appointments: "id,dateTimeISO",
+    });
   }
 }
 
