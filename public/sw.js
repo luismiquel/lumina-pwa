@@ -105,3 +105,9 @@ self.addEventListener("fetch", (event) => {
   // Resto: network-first
   event.respondWith(networkFirst(req));
 });
+
+self.addEventListener("message", (event) => {
+  if (event?.data?.type === "SKIP_WAITING") {
+    try { self.skipWaiting(); } catch {}
+  }
+});
