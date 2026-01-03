@@ -4,6 +4,8 @@ import { AppointmentsRepo } from "@/infra/db/repositories";
 import type { Appointment } from "@/domain/models/entities";
 
 import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
+import { parseICS } from "@/infra/calendar/icsImport";
+import { db } from "@/infra/db/db";
 export default function Appointments(props: { senior: boolean }) {
   const { senior } = props;
   const [list, setList] = useState<Appointment[]>([]);
@@ -72,4 +74,5 @@ export default function Appointments(props: { senior: boolean }) {
     </div>
   );
 }
+
 

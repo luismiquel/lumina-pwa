@@ -1,5 +1,6 @@
 ﻿import { CalendarDays, Mic, MapPin, ShoppingCart } from "lucide-react";
 
+import GlobalSearch from "@/app/components/GlobalSearch";
 export default function Home(props: { onGo: (v: any) => void; senior: boolean }) {
   const { onGo, senior } = props;
   const b = senior ? "text-xl py-5" : "text-sm py-4";
@@ -26,3 +27,4 @@ export default function Home(props: { onGo: (v: any) => void; senior: boolean })
     </div>
   );
 }
+
