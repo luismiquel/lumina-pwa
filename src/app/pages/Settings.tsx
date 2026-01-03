@@ -1,4 +1,5 @@
-﻿import PasswordModal from "@/app/components/PasswordModal";
+﻿import { copyJson, getHealthReport, requestPersistentStorage, type HealthReport } from "@/app/utils/health";
+import PasswordModal from "@/app/components/PasswordModal";
 import { importAllFromZipBytes } from "@/infra/bundle/importBundle";
 import { decryptEncFile, encryptZipAndDownload } from "@/infra/crypto/zipCrypto";
 import { buildExportZipBytes } from "@/infra/bundle/exportBundle";
@@ -39,7 +40,8 @@ export default function Settings() {
   
   const [pwdOpen, setPwdOpen] = useState(false);
   const [pwdMode, setPwdMode] = useState<"EXPORT" | "IMPORT">("EXPORT");
-  const [pendingEncFile, setPendingEncFile] = useState<File | null>(null);const readOnly = !!settings?.readOnlyMode;
+  const [pendingEncFile, setPendingEncFile] = useState<File | null>(null);
+  const [health, setHealth] = useState<HealthReport | null>(null);const readOnly = !!settings?.readOnlyMode;
 const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boolean; registration: boolean; registrations?: number } | null>(null);
 
   useEffect(() => {
@@ -306,6 +308,7 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
 
 
 
