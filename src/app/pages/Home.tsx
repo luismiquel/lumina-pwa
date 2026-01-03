@@ -1,15 +1,29 @@
-﻿import { CalendarDays, MapPin, ShoppingCart, FileText, Settings as SettingsIcon, Search } from "lucide-react";
+﻿import type { View } from "@/app/nav";
+import { CalendarDays, MapPin, ShoppingCart, FileText, Settings as SettingsIcon, Search } from "lucide-react";
 import GlobalSearch from "@/app/components/GlobalSearch";
-
-type View = "HOME" | "APPOINTMENTS" | "SHOPPING" | "DICTATION" | "FINDER" | "SETTINGS" | "NOTES";
 
 export default function HomePage(props: { onGo: (v: View) => void; senior: boolean }) {
   const { onGo, senior } = props;
 
-  // HOME ULTRA SIMPLE para Senior
+  
+  const seenGuide = !!localStorage.getItem("lumina_seen_guide_v1");
+  const showGuide = !!senior || !seenGuide;
+// HOME ULTRA SIMPLE para Senior
   if (senior) {
     return (
       <div className="space-y-4">
+      {showGuide && (
+        <button
+          onClick={() => onGo("GUIDE")}
+          className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
+          aria-label="Abrir guía e instrucciones"
+        >
+          <div className="font-black">ABRIR GUÍA</div>
+          <div className="text-sm opacity-70 mt-1">
+            Instrucciones, copias de seguridad, instalación PWA y solución de problemas.
+          </div>
+        </button>
+      )}
         <div className="glass rounded-3xl p-5 border border-white/10">
           <div className="font-black text-2xl tracking-tight">Inicio</div>
           <div className="opacity-70 mt-1">Botones grandes · Fácil · Offline</div>
@@ -77,6 +91,18 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
   // HOME normal (no senior): mantiene búsqueda global arriba
   return (
     <div className="space-y-4">
+      {showGuide && (
+        <button
+          onClick={() => onGo("GUIDE")}
+          className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
+          aria-label="Abrir guía e instrucciones"
+        >
+          <div className="font-black">ABRIR GUÍA</div>
+          <div className="text-sm opacity-70 mt-1">
+            Instrucciones, copias de seguridad, instalación PWA y solución de problemas.
+          </div>
+        </button>
+      )}
       <GlobalSearch senior={false} onGo={onGo} />
 
       <div className="glass rounded-3xl p-6 border border-white/10">
@@ -113,3 +139,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     </div>
   );
 }
+
+
+
+
