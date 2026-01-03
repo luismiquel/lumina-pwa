@@ -59,7 +59,9 @@ function NavBtn(props: { active: boolean; onClick: ()=>void; children: any }) {
     <button onClick={props.onClick}
       className={"rounded-2xl py-3 border transition " + (props.active ? "bg-[#00f2ff]/15 border-[#00f2ff]/40 text-[#00f2ff]" : "bg-white/5 border-white/10 opacity-70 hover:opacity-100")}
     >
-      <div className="flex items-center justify-center">{props.children}</div>
+      <div className="flex items-center justify-center">{props.children}      <UpdateToast />
+</div>
     </button>
   );
 }
+

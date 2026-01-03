@@ -1,15 +1,11 @@
-﻿const CACHE = "lumina-cache-v2";
+﻿const CACHE = "lumina-cache-v3";
 
-/**
- * Core mínimo: app shell + manifest + icons.
- * /assets se cachea dinámicamente (cache-first) y también se precalienta en activate.
- */
 const CORE = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/icons/icon-512.png",
 ];
 
 function isSameOrigin(req) {
@@ -21,41 +17,53 @@ function isSameOrigin(req) {
   }
 }
 
+async function precacheCore() {
+  const cache = await caches.open(CACHE);
+  await cache.addAll(CORE);
+}
+
+async function warmAssetsFromIndex() {
+  try {
+    const cache = await caches.open(CACHE);
+    const res = (await cache.match("/index.html")) ?? (await fetch("/index.html", { cache: "no-store" }));
+    const html = await res.text();
+
+    const assets = [];
+    const cssRe = /href="(\/assets\/[^"]+\.css)"/g;
+    const jsRe = /src="(\/assets\/[^"]+\.js)"/g;
+
+    let m;
+    while ((m = cssRe.exec(html))) assets.push(m[1]);
+    while ((m = jsRe.exec(html))) assets.push(m[1]);
+
+    await Promise.all(
+      assets.map(async (u) => {
+        try { await cache.add(u); } catch {}
+      })
+    );
+  } catch {}
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    await cache.addAll(CORE);
+    await precacheCore();
     self.skipWaiting();
   })());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
-    // limpia caches viejas
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k))));
     await self.clients.claim();
-
-    // precalienta assets del build si podemos (best-effort)
-    // No rompe si falla: sirve para mejorar offline tras 1ª carga.
-    try {
-      const cache = await caches.open(CACHE);
-      // Intento obtener index.html desde cache (o red) y extraer /assets/...
-      const res = (await cache.match("/index.html")) ?? (await fetch("/index.html", { cache: "no-store" }));
-      const html = await res.text();
-      const assetUrls = [];
-      const re = /href="(\/assets\/[^"]+\.css)"/g;
-      const re2 = /src="(\/assets\/[^"]+\.js)"/g;
-
-      let m;
-      while ((m = re.exec(html))) assetUrls.push(m[1]);
-      while ((m = re2.exec(html))) assetUrls.push(m[1]);
-
-      await Promise.all(assetUrls.map(async (u) => {
-        try { await cache.add(u); } catch {}
-      }));
-    } catch {}
+    await warmAssetsFromIndex();
   })());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 async function cacheFirst(req) {
@@ -70,7 +78,10 @@ async function cacheFirst(req) {
     }
     return res;
   } catch {
-    return new Response("Offline (Lumina Local)", { status: 503, headers: { "Content-Type": "text/plain" } });
+    return new Response("Offline (Lumina Local)", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
 }
 
@@ -85,7 +96,11 @@ async function networkFirst(req) {
   } catch {
     const cached = await cache.match(req);
     if (cached) return cached;
-    return new Response("Offline (Lumina Local)", { status: 503, headers: { "Content-Type": "text/plain" } });
+
+    return new Response("Offline (Lumina Local)", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
 }
 
@@ -95,10 +110,8 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
 
-  // navegación SPA
   if (req.mode === "navigate") {
     event.respondWith((async () => {
-      // intenta red, si no, app shell
       const res = await networkFirst(req);
       if (res && res.ok) return res;
       const cache = await caches.open(CACHE);
@@ -107,12 +120,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // assets del build: cache-first
   if (url.pathname.startsWith("/assets/") || url.pathname.endsWith(".css") || url.pathname.endsWith(".js")) {
     event.respondWith(cacheFirst(req));
     return;
   }
 
-  // resto: network-first
   event.respondWith(networkFirst(req));
 });
