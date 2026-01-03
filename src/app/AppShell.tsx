@@ -69,7 +69,7 @@ const { haptic } = useSeniorUX(senior);
 
         <main className="p-6 overflow-y-auto" style={{ height: "calc(92vh - 86px - 84px)" }}>
           {view === "HOME" && <HomePage onGo={setView} senior={senior} />}
-          {view === "APPOINTMENTS" && <Appointments senior={senior} />}
+          {view === "APPOINTMENTS" && <Appointments senior={senior} readOnly={readOnly} />}
           {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} />}
           {view === "DICTATION" && <Dictation senior={senior} />}
           {view === "FINDER" && <Finder senior={senior} />}
@@ -77,7 +77,7 @@ const { haptic } = useSeniorUX(senior);
         </main>
 
         <nav className="absolute bottom-0 left-0 right-0 p-4 bg-black/70 border-t border-white/10 backdrop-blur-xl">
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-6 gap-2" role="tablist" aria-label="Navegación" data-navlist="1">
             <NavBtn ariaLabel="Inicio" senior={senior} onClick={() => go("HOME")} active={view === "HOME"}>
               <Home size={senior ? 22 : 20} />
             </NavBtn>
@@ -129,6 +129,9 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
 
 
 
