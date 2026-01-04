@@ -1,165 +1,244 @@
-﻿import { shareText } from "@/app/utils/share";
-import { confirmDanger } from "@/app/utils/confirm";
-import { focusByLuminaId } from "@/app/nav/focusHelpers";
-import { consumeNavTarget } from "@/app/nav/navTarget";
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { CalendarPlus, Trash2 } from "lucide-react";
+
+import { confirmDanger } from "@/app/utils/confirm";
+import { shareText } from "@/app/utils/share";
+
 import { AppointmentsRepo } from "@/infra/db/repositories";
 import type { Appointment } from "@/domain/models/entities";
 
 import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 import { parseICS } from "@/infra/calendar/icsImport";
-import { db } from "@/infra/db/db";
-import { navTo } from "@/app/navBus";
-export default function Appointments(props: { senior?: boolean; onHelp?: () => void }) {
-  const { senior } = props;
-  /* LUMINA_READONLY_APPOINTMENTS_COMPAT */
-  const add = async () => {const title = prompt("Título de la cita:")?.trim() || "Cita";
-    const dateTimeISO = prompt("Fecha/hora ISO (ej: 2026-01-03T12:30):")?.trim();
 
-    if (!dateTimeISO) return;
+import { loadDraft, saveDraft, clearDraft } from "@/infra/drafts/drafts";
 
-    const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
+function toLocalInputValue(d: Date): string {
+  // YYYY-MM-DDTHH:mm
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
-    // si tienes repositorio en el archivo con otro nombre, intentamos db directo
-    try {
-      if (repo?.add) {
-        await repo.add({ id: crypto.randomUUID(), title, dateTimeISO, createdAt: Date.now(), updatedAt: Date.now() });
-      } else {
-        // fallback: intenta db.appointments.add si existe
-        const dbAny: any = (globalThis as any).db;
-        if (dbAny?.appointments?.add) {
-          await dbAny.appointments.add({ id: crypto.randomUUID(), title, dateTimeISO, createdAt: Date.now(), updatedAt: Date.now() });
-        } else {
-          alert("No encuentro AppointmentsRepo ni db.appointments.add.");
-          return;
-        }
-      }
-    } catch (e: any) {
-      alert(e?.message ?? "No se pudo añadir la cita.");
-      return;
-    }
+export default function Appointments(props: { senior?: boolean; onHelp?: () => void; readOnly?: boolean }) {
+  const senior = !!props.senior;
+  const readOnly = !!props.readOnly;
 
-    try { location.reload(); } catch {}};
+  const DRAFT_KEY = "lumina_draft_appointments_v1";
+  const draft = loadDraft(DRAFT_KEY, { title: "", place: "", doctor: "", dt: "" });
 
-  const remove = async (id: string) => {const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
+  const [title, setTitle] = useState<string>(draft.title ?? "");
+  const [place, setPlace] = useState<string>(draft.place ?? "");
+  const [doctor, setDoctor] = useState<string>(draft.doctor ?? "");
+  const [dt, setDt] = useState<string>(draft.dt ?? toLocalInputValue(new Date()));
 
-    try {
-      if (repo?.remove) await repo.remove(id);
-      else if (repo?.delete) await repo.delete(id);
-      else {
-        const dbAny: any = (globalThis as any).db;
-        if (dbAny?.appointments?.delete) await dbAny.appointments.delete(id);
-        else {
-          alert("No encuentro AppointmentsRepo.remove/delete ni db.appointments.delete.");
-          return;
-        }
-      }
-    } catch (e: any) {
-      alert(e?.message ?? "No se pudo borrar la cita.");
-      return;
-    }
+  const [items, setItems] = useState<Appointment[]>([]);
+  const refresh = async () => setItems(await AppointmentsRepo.list());
 
-    try { location.reload(); } catch {}};
-  /* /LUMINA_READONLY_APPOINTMENTS_COMPAT */const [list, setList] = useState<Appointment[]>([]);
-  const [title, setTitle] = useState("");
-  const [place, setPlace] = useState("");
-  const [doctor, setDoctor] = useState("");
-  const [dt, setDt] = useState("");
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    saveDraft(DRAFT_KEY, { title, place, doctor, dt });
+  }, [title, place, doctor, dt]);
 
-  const load = async () => setList(await AppointmentsRepo.list());
-  useEffect(() => { load(); }, []);
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    return [...items]
+      .sort((a, b) => a.dateTimeISO.localeCompare(b.dateTimeISO))
+      .filter(a => {
+        const t = Date.parse(a.dateTimeISO);
+        return Number.isFinite(t) ? t >= now - 60_000 : true;
+      });
+  }, [items]);
 
-  const addAppointment = async () => {if (!title.trim() || !dt) return;
-    await AppointmentsRepo.add({
+  const addAppointment = async () => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    if (!title.trim() || !dt) return;
+
+    const ap: Appointment = {
+      id: crypto.randomUUID(),
       title: title.trim(),
       place: place.trim() || undefined,
       doctor: doctor.trim() || undefined,
       dateTimeISO: new Date(dt).toISOString(),
-      note: undefined
-    });
-    setTitle(""); setPlace(""); setDoctor(""); setDt("");
-    await load();
+      createdAt: Date.now(),
+    };
+
+    await AppointmentsRepo.add(ap);
+    setTitle(""); setPlace(""); setDoctor("");
+    clearDraft(DRAFT_KEY);
+    await refresh();
   };
 
-  const removeAppointment = async (id: string) => {if (!confirmDanger("¿Borrar esta cita?")) return;
-      await AppointmentsRepo.remove(id);await load(); };
+  const removeAppointment = async (id: string) => {
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    if (!confirmDanger("¿Borrar esta cita?")) return;
+    await AppointmentsRepo.remove(id);
+    await refresh();
+  };
 
-  const upcoming = useMemo(
-    () => list.filter(a => new Date(a.dateTimeISO).getTime() >= Date.now()),
-    [list]
-  );
+  const exportIcs = async () => {
+        const events: IcsEvent[] = upcoming.map((a) => {
+      const startMs = Date.parse(a.dateTimeISO);
+      return {
+        title: a.title,
+        startMs: Number.isFinite(startMs) ? startMs : Date.now(),
+        // opcionales si tu tipo los tiene (no pasa nada si sobran y TS se queja, los quitamos luego)
+        location: a.place,
+        description: a.doctor ? `Doctor/a: ${a.doctor}` : undefined,
+      } as any;
+    });
 
-  useEffect(() => {
-  const t = consumeNavTarget();
-  if (t?.kind === "APPOINTMENT") {
-    // intentos suaves por si la lista tarda en pintar
-    let tries = 0;
-    const tick = () => {
-      tries++;
-      if (focusByLuminaId(t.id) || tries > 10) return;
-      setTimeout(tick, 120);
-    };
-    tick();
-  }
-}, []);
+    const ics = buildICS("Lumina Local", events);
+    downloadICS(`lumina_citas_${new Date().toISOString().slice(0,10)}.ics`, ics);
+  };
 
-return (
-    <div className="space-y-4">
-      <div className="glass rounded-3xl p-6 border border-white/10">
-        <h2 className={"font-black " + (senior ? "text-3xl" : "text-xl")}>Citas médicas</h2>
+  const importIcs = async (file?: File | null) => {
+    if (!file) return;
+    if (readOnly) { alert("Modo solo lectura."); return; }
+    if (!confirmDanger("Vas a IMPORTAR eventos desde un ICS y añadirlos a tus citas.\n\n¿Continuar?")) return;
 
-        <div className="grid grid-cols-1 gap-2 mt-4">
-          <input value={title} onChange={(e)=>setTitle(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Título (Cardiólogo, Analítica…)" />
-          <input value={place} onChange={(e)=>setPlace(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Lugar (opcional)" />
-          <input value={doctor} onChange={(e)=>setDoctor(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" placeholder="Doctor/a (opcional)" />
-          <input type="datetime-local" value={dt} aria-label="Fecha y hora" onChange={(e)=>setDt(e.target.value)} className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none" />
-          <button onClick={add} className="bg-[#00f2ff] text-black font-black rounded-2xl py-4 flex items-center justify-center gap-2">
-            <CalendarPlus/> Guardar cita
-          </button>
+    const txt = await file.text();
+    const parsed = parseICS(txt);
+
+    // Mapea lo importado a Appointment
+    const now = Date.now();
+    const rows: Appointment[] = parsed.map((p) => ({
+      id: crypto.randomUUID(),
+      title: (p.title?.trim() || "Cita"),
+      place: p.place?.trim() || undefined,
+      doctor: p.doctor?.trim() || undefined,
+      dateTimeISO: p.dateTimeISO,
+      createdAt: now,
+      updatedAt: now,
+    }));
+
+    for (const a of rows) await AppointmentsRepo.add(a);
+    await refresh();
+  };
+
+  const shareNext = async () => {
+    const n = upcoming[0];
+    if (!n) return;
+    const when = new Date(n.dateTimeISO).toLocaleString();
+    const msg =
+      `Cita: ${n.title}\n` +
+      (n.place ? `Lugar: ${n.place}\n` : "") +
+      (n.doctor ? `Doctor/a: ${n.doctor}\n` : "") +
+      `Fecha: ${when}`;
+    await shareText("Lumina - Próxima cita", msg);
+  };
+
+  return (
+    <div className="p-6 space-y-6 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className={"font-black " + (senior ? "text-3xl" : "text-2xl")}>Citas médicas</h2>
+          <p className="opacity-70 mt-1 text-sm">Local · Offline · Sin IA · Sin APIs de pago</p>
+        </div>
+        <div className="flex gap-2">
+          {props.onHelp && (
+            <button
+              onClick={props.onHelp}
+              className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl px-4 py-3"
+              aria-label="Ayuda"
+            >
+              ? Ayuda
+            </button>
+          )}
         </div>
       </div>
 
+      <div className="glass rounded-3xl p-6 border border-white/10 space-y-3">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none w-full"
+          placeholder="Título (Cardiólogo, Analítica…)"
+          aria-label="Título"
+        />
+        <input
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none w-full"
+          placeholder="Lugar (opcional)"
+          aria-label="Lugar"
+        />
+        <input
+          value={doctor}
+          onChange={(e) => setDoctor(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none w-full"
+          placeholder="Doctor/a (opcional)"
+          aria-label="Doctor"
+        />
+        <input
+          type="datetime-local"
+          value={dt}
+          onChange={(e) => setDt(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-2xl p-4 outline-none w-full"
+          aria-label="Fecha y hora"
+        />
+
+        <button
+          onClick={addAppointment}
+          className="bg-[#00f2ff] text-black font-black rounded-2xl py-4 w-full inline-flex items-center justify-center gap-2"
+          aria-label="Guardar cita"
+        >
+          <CalendarPlus /> Guardar cita
+        </button>
+
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          <button
+            onClick={exportIcs}
+            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3"
+          >
+            Exportar ICS
+          </button>
+
+          <label className="bg-purple-500 text-black font-black rounded-2xl py-3 text-center cursor-pointer">
+            Importar ICS
+            <input
+              type="file"
+              accept=".ics,text/calendar"
+              className="hidden"
+              onChange={(e) => importIcs(e.target.files?.[0])}
+            />
+          </label>
+        </div>
+
+        <button
+          onClick={shareNext}
+          className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3 w-full"
+        >
+          Compartir próxima cita
+        </button>
+      </div>
+
       <div className="space-y-2">
-        {upcoming.map(a => (
-          <div key={a.id} data-lumina-id={a.id} className="glass rounded-2xl p-4 border border-white/10 flex justify-between items-center">
+        {upcoming.length === 0 && (
+          <div className="opacity-70">No hay próximas citas.</div>
+        )}
+
+        {upcoming.map((a) => (
+          <div key={a.id} className="glass rounded-2xl p-4 border border-white/10 flex items-start justify-between gap-3">
             <div>
-              <div className={senior ? "text-2xl font-black" : "text-base font-black"}>{a.title}</div>
-              <div className="opacity-60 text-sm">
+              <div className="font-black">{a.title}</div>
+              <div className="text-sm opacity-70">
                 {new Date(a.dateTimeISO).toLocaleString()}
-                {a.place ? " · " + a.place : ""}
-                {a.doctor ? " · " + a.doctor : ""}
+                {a.place ? ` · ${a.place}` : ""}
+                {a.doctor ? ` · ${a.doctor}` : ""}
               </div>
             </div>
-            <button onClick={()=>remove(a.id)} className="opacity-70 hover:opacity-100">
-              <Trash2 className="text-red-400"/>
+            <button
+              onClick={() => removeAppointment(a.id)}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Borrar"
+              title="Borrar"
+            >
+              <Trash2 size={18} />
             </button>
           </div>
         ))}
-        {upcoming.length===0 && <p className="opacity-40 text-center py-6">No hay próximas citas.</p>}
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
