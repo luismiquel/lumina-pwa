@@ -41,6 +41,13 @@ export default function Finder(props: { senior: boolean; onHelp?: () => void }) 
       <div className="glass rounded-3xl p-6 border border-white/10">
         <h2 className={"font-black flex items-center gap-2 " + (senior ? "text-3xl" : "text-xl")}><MapPin/> GPS emergencia</h2>
         <p className="opacity-70 mt-2">Obtén un enlace de ubicación y compártelo.</p>
+        <button
+          onClick={() => navTo("GUIDE", "finder")}
+          className="mt-3 w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3"
+          aria-label="Ayuda"
+        >
+          ? Ayuda (GPS)
+        </button>
 
         <button onClick={locate} aria-label="Localizar ahora" className="mt-4 bg-[#00f2ff] text-black font-black rounded-2xl py-4 w-full">
           Localizar ahora
@@ -67,6 +74,7 @@ export default function Finder(props: { senior: boolean; onHelp?: () => void }) 
     </div>
   );
 }
+
 
 
 
