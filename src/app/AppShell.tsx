@@ -22,6 +22,7 @@ import UpdateToast from "@/app/components/UpdateToast";
 import OfflineBadge from "@/app/components/OfflineBadge";
 import { onNav } from "@/app/navBus";
 import Guide from "@/app/pages/Guide";
+import MedsReminderBar from "@/app/components/MedsReminderBar";
 export default function AppShell() {
   const { settings } = useSettings();
   const [view, setView] = useState<View>("GUIDE");
@@ -111,6 +112,9 @@ const { haptic } = useSeniorUX(senior);
           </div>
         </nav>
 
+        <MedsReminderBar senior={senior} />
+
+
         <UpdateToast />
         <OfflineBadge />
       </div>
@@ -136,6 +140,8 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
 
 
 
