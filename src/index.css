@@ -72,3 +72,29 @@ html[data-senior="1"] :focus-visible {
   outline-offset: 2px;
   border-radius: 14px;
 }
+
+/* ===== PRINT (PDF) ===== */
+@media print {
+  :root { color-scheme: light; }
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Evita fondos oscuros, blur y sombras */
+  .glass, .backdrop-blur-xl, .backdrop-blur, .shadow, .shadow-lg, .shadow-xl {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Oculta navegación fija y botones innecesarios */
+  nav, header { display: none !important; }
+  button, a { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Ajusta bordes y espaciado */
+  .border, [class*="border-"] { border-color: #ddd !important; }
+
+  /* Evita recortes raros */
+  * { overflow: visible !important; }
+}

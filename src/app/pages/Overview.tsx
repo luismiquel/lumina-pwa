@@ -13,6 +13,7 @@
   MapPin,
   Keyboard,
   CheckCircle2,
+  Printer,
 } from "lucide-react";
 
 export default function Overview(props: { senior: boolean; onClose: () => void; onOpenGuide?: () => void }) {
@@ -132,3 +133,5 @@ function Item(props: { icon: any; title: string; text: string }) {
     </div>
   );
 }
+
+
