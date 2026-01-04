@@ -14,7 +14,7 @@ import { shareText } from "@/app/utils/share";
 import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { focusByLuminaId } from "@/app/nav/focusHelpers";
 import { consumeNavTarget } from "@/app/nav/navTarget";
-import { useEffect, useState } from "react";
+import {useEffect, useState, useMemo} from "react";
 import { Card } from "@/app/components/Card";
 import { NotesRepo } from "@/infra/db/repos";
 import type { Note } from "@/domain/models/entities";
@@ -28,7 +28,9 @@ const [items, setItems] = useState<Note[]>([]);
 
   
 
-  /* LUMINA_UNDO_NOTES */
+  
+  const [tagFilter, setTagFilter] = useState<"salud" | "citas" | "medicacion" | "ALL">("ALL");
+/* LUMINA_UNDO_NOTES */
   const { action: undoAction, push: pushUndo, undo: doUndo, clear: clearUndo } = useUndo(9000);
 
   const repoPutOne = async (repo: any, note: any) => {
@@ -93,6 +95,106 @@ const [items, setItems] = useState<Note[]>([]);
   /* /LUMINA_UNDO_NOTES */
 
   // Compat: handler esperado por el JSX
+  const medicationTemplate = () => {
+    const today = new Date().toLocaleDateString();
+    return [
+      "📌 MEDICACIÓN (" + today + ")",
+      "",
+      "• Medicamento:",
+      "• Dosis:",
+      "• Frecuencia (cada X horas / diaria):",
+      "",
+      "🕒 Horarios:",
+      "  - Mañana:",
+      "  - Mediodía:",
+      "  - Tarde:",
+      "  - Noche:",
+      "",
+      "⚠️ Instrucciones:",
+      "  - Con comida / en ayunas:",
+      "  - Precauciones:",
+      "",
+      "📝 Notas:",
+      ""
+    ].join("\n");
+  };  const healthTemplate = () => {
+    const today = new Date().toLocaleDateString();
+    return [
+      "🩺 SALUD (" + today + ")",
+      "",
+      "✅ Cómo me siento hoy (0-10):",
+      "✅ Síntomas:",
+      "✅ Temperatura / Tensión / Glucosa (si aplica):",
+      "",
+      "🍽️ Alimentación:",
+      "🏃 Actividad:",
+      "😴 Sueño:",
+      "",
+      "⚠️ Alertas (si algo empeora):",
+      "",
+      "📝 Notas:",
+      ""
+    ].join("\n");
+  };
+
+  const medicalAppointmentsTemplate = () => {
+    const today = new Date().toLocaleDateString();
+    return [
+      "🏥 CITAS MÉDICAS (" + today + ")",
+      "",
+      "📌 Especialidad / Motivo:",
+      "👨‍⚕️ Doctor/a:",
+      "📍 Lugar:",
+      "🗓️ Fecha y hora:",
+      "",
+      "❓ Preguntas para hacer:",
+      "  - ",
+      "  - ",
+      "  - ",
+      "",
+      "📄 Pruebas / Informes que llevo:",
+      "  - ",
+      "  - ",
+      "",
+      "📝 Resultado / Indicaciones:",
+      ""
+    ].join("\n");
+  };
+
+  const addHealthTemplate = async () => {
+    try {
+      await NotesRepo.add("Salud", healthTemplate(), ["salud"]);
+      await refresh();
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    } catch (e: any) {
+      alert(e?.message ?? "No se pudo crear la plantilla de salud.");
+    }
+  };
+
+  const addMedicalAppointmentsTemplate = async () => {
+    try {
+      await NotesRepo.add("Citas médicas", medicalAppointmentsTemplate(), ["citas"]);
+      await refresh();
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    } catch (e: any) {
+      alert(e?.message ?? "No se pudo crear la plantilla de citas.");
+    }
+  };
+
+
+  const addMedicationTemplate = async () => {
+    try {
+      // Reusa el flujo existente: NotesRepo.add(title, content, tags)
+      // Si en tu implementación add necesita otros campos, esto no rompe porque usamos el mismo NotesRepo.
+      await NotesRepo.add("Medicación", medicationTemplate(), ["medicacion"]);
+      await refresh();
+      // opcional: scroll top para ver la nota nueva
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+    } catch (e: any) {
+      alert(e?.message ?? "No se pudo crear la plantilla de medicación.");
+    }
+  };
+
   const add = async () => {
     if (readOnly) { alert("Modo solo lectura."); return; }
     const repo: any = NotesRepo as any;
@@ -205,8 +307,11 @@ const [items, setItems] = useState<Note[]>([]);
           if (!confirmDanger("¿Borrar esta nota?")) return;
       await removeWithUndo(id);await refresh();
   };
-
-  return (
+  const visibleItems = useMemo(() => {
+    if (tagFilter === "ALL") return items;
+    return items.filter((n: any) => Array.isArray(n.tags) && n.tags.map((t: any) => String(t).toLowerCase()).includes(tagFilter));
+  }, [items, tagFilter]);
+return (
   <>
     <UndoToast show={!!undoAction} label={undoAction?.label} onUndo={doUndo} onClose={clearUndo} />
     <div className="flex flex-col gap-6">
@@ -238,7 +343,7 @@ const [items, setItems] = useState<Note[]>([]);
       </Card>
 
       <div className="space-y-3">
-        {items.map(n => (
+        {visibleItems.map((n: any) => (
           <div key={n.id} data-lumina-id={n.id} className="glass border border-white/10 rounded-3xl p-5">
             <div className="flex justify-between gap-4">
               <div className="min-w-0">
@@ -260,6 +365,12 @@ const [items, setItems] = useState<Note[]>([]);
     </>
 );
 }
+
+
+
+
+
+
 
 
 

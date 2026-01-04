@@ -69,7 +69,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
           </button>
 
           <button
-            onClick={() => onGo("NOTES")}
+            onClick={() => navTo("NOTES")}
             className="glass border border-white/10 rounded-3xl p-5 min-h-[96px] flex flex-col items-start justify-center gap-2 hover:bg-white/10 transition"
           >
             <FileText size={28} className="text-[#00f2ff]" />
@@ -150,7 +150,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
             <MapPin size={18} /> GPS
           </button>
           <button
-            onClick={() => onGo("NOTES")}
+            onClick={() => navTo("NOTES")}
             className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl py-4 font-black inline-flex items-center justify-center gap-2"
           >
             <FileText size={18} /> Notas
@@ -160,6 +160,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     </div>
   );
 }
+
 
 
 
