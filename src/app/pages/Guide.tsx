@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { consumeNavTarget } from "@/app/navBus";
 
+import { navTo } from "@/app/navBus";
 type SectionId =
   | "privacy"
   | "offline"
@@ -261,4 +262,5 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
     </div>
   );
 }
+
 

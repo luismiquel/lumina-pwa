@@ -24,8 +24,8 @@ import { onNav } from "@/app/navBus";
 import Guide from "@/app/pages/Guide";
 export default function AppShell() {
   const { settings } = useSettings();
-  const [view, setView] = useState<View>(() => ((localStorage.getItem("lumina_seen_guide_v1") ? "HOME" : "GUIDE")));
-  const [guideSection, setGuideSection] = useState<string | undefined>(undefined);
+  const [view, setView] = useState<View>("GUIDE");
+const [guideSection, setGuideSection] = useState<string | undefined>(undefined);
       const senior = !!settings?.seniorMode;
 
   useEffect(() => {
@@ -136,6 +136,8 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
 
 
 
