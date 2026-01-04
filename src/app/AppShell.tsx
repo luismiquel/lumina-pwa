@@ -1,6 +1,6 @@
 ﻿import Overview from "@/app/pages/Overview";
 import type { View } from "./nav";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Home,
   CalendarDays,
@@ -12,22 +12,27 @@ import {
 
 import { useSettings } from "@/app/hooks/useSettings";
 import { useSeniorUX } from "@/app/hooks/useSeniorUX";
-
 import HomePage from "@/app/pages/Home";
 import Shopping from "@/app/pages/Shopping";
 import Appointments from "@/app/pages/Appointments";
 import Dictation from "@/app/pages/Dictation";
 import Finder from "@/app/pages/Finder";
 import Settings from "@/app/pages/Settings";
-
 import UpdateToast from "@/app/components/UpdateToast";
 import OfflineBadge from "@/app/components/OfflineBadge";
-
-
+import { onNav } from "@/app/navBus";
 export default function AppShell() {
   const { settings } = useSettings();
   const [view, setView] = useState<View>(() => ((localStorage.getItem("lumina_seen_guide_v1") ? "HOME" : "GUIDE")));
-    const senior = !!settings?.seniorMode;
+  const [guideSection, setGuideSection] = useState<string | undefined>(undefined);
+      const senior = !!settings?.seniorMode;
+
+  useEffect(() => {
+    return onNav(({ view, section }: { view: import("@/app/nav").View; section?: string }) => {
+      setGuideSection(section);
+      setView(view);
+    });
+  }, []);
 
   const closeGuide = () => {
     localStorage.setItem("lumina_seen_guide_v1", "1");
@@ -70,8 +75,8 @@ const { haptic } = useSeniorUX(senior);
 
         <main className="p-6 overflow-y-auto" style={{ height: "calc(92vh - 86px - 84px)" }}>
           {view === "HOME" && <HomePage onGo={setView} senior={senior} />}
-          {view === "APPOINTMENTS" && <Appointments senior={senior} onHelp={() => openGuide("backup")} />}
-          {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} />}
+          {view === "APPOINTMENTS" && <Appointments senior={senior} />}
+          {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} /> }
           {view === "DICTATION" && <Dictation senior={senior} />}
           {view === "FINDER" && <Finder senior={senior} onHelp={() => openGuide("offline")} />}
           {view === "SETTINGS" && <Settings />}
@@ -130,6 +135,20 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
