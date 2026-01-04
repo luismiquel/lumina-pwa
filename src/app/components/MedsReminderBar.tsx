@@ -1,131 +1,100 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { AlarmClock, CheckCircle2, Pill } from "lucide-react";
-import { loadMeds, normalizeForToday, setTakenToday, type Med } from "@/infra/meds/medsStore";
-
-function toMinutes(hhmm: string): number | null {
-  const m = /^(\d{2}):(\d{2})$/.exec(hhmm);
-  if (!m) return null;
-  const hh = Number(m[1]);
-  const mm = Number(m[2]);
-  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
-  return hh * 60 + mm;
-}
-
-function nowMinutes(): number {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
+import { BellRing, Pill } from "lucide-react";
+import { loadMeds, normalizeForToday, type Med } from "@/infra/meds/medsStore";
+import { navTo } from "@/app/navBus";
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Ventana de “toca ahora”
-const WINDOW_MIN = 30;
-
-type NextDose = {
-  med: Med;
-  time: string;   // "HH:MM"
-  inMin: number;  // puede ser negativo si se pasó hace poco
-};
+function minsUntil(timeHHMM: string): number | null {
+  const m = /^(\d{2}):(\d{2})$/.exec(timeHHMM);
+  if (!m) return null;
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(Number(m[1]), Number(m[2]), 0, 0);
+  return Math.round((target.getTime() - now.getTime()) / 60000);
+}
 
 export default function MedsReminderBar(props: { senior: boolean }) {
   const { senior } = props;
-  const [meds, setMeds] = useState<Med[]>(() => normalizeForToday(loadMeds()));
-  const [tick, setTick] = useState(0);
 
-  // refresca cada 30s para que el aviso se actualice
+  // "tick" para recalcular cada 30s sin permisos ni notificaciones
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [meds, setMeds] = useState<Med[]>(() => normalizeForToday(loadMeds()));
+
   useEffect(() => {
-    const id = window.setInterval(() => setTick((x) => x + 1), 30_000);
+    const id = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(id);
   }, []);
 
-  // si cambia storage en otra pestaña
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (!e.key) return;
-      if (e.key.includes("lumina_meds_v1")) setMeds(normalizeForToday(loadMeds()));
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+    // refresca meds desde localStorage a cada tick
+    setMeds(normalizeForToday(loadMeds()));
+  }, [now]);
 
-  const nextDose = useMemo<NextDose | null>(() => {
-    void tick;
+  const info = useMemo(() => {
+    const t = todayISO();
+    const active = meds.filter((m) => m.active);
 
-    const tmin = nowMinutes();
-    const active = normalizeForToday(meds).filter((m) => m.active && m.times?.length);
+    // pendientes = activos no tomados hoy
+    const pending = active.filter((m) => m.takenOn !== t);
 
-    let best: NextDose | null = null;
+    // próxima toma (minutos hasta) entre todos los pendientes
+    let nextMin: number | null = null;
+    let nextMed: Med | null = null;
+    let nextTime: string | null = null;
 
-    for (const m of active) {
-      // si ya está marcado como tomado hoy, no molestamos (simple)
-      if (m.takenOn === todayISO()) continue;
-
-      for (const hhmm of m.times) {
-        const mm = toMinutes(hhmm);
-        if (mm === null) continue;
-
-        // diferencia en minutos (hoy)
-        let diff = mm - tmin;
-
-        // si ya pasó, puede que siga “en ventana” (ej: hace 10 min)
-        // o si pasó hace mucho, lo ignoramos (no queremos avisos de ayer)
-        if (diff < -WINDOW_MIN) continue;
-
-        // queremos el más cercano (puede ser negativo pequeño o el próximo)
-        if (!best || diff < best.inMin) {
-          best = { med: m, time: hhmm, inMin: diff };
+    for (const m of pending) {
+      for (const hhmm of m.times || []) {
+        const mins = minsUntil(hhmm);
+        if (mins === null) continue;
+        if (mins < -60) continue; // ya muy pasado
+        if (nextMin === null || mins < nextMin) {
+          nextMin = mins;
+          nextMed = m;
+          nextTime = hhmm;
         }
       }
     }
-    return best;
-  }, [meds, tick]);
 
-  const show = !!nextDose && nextDose.inMin <= WINDOW_MIN;
+    return { activeCount: active.length, pendingCount: pending.length, nextMin, nextMed, nextTime };
+  }, [meds]);
 
-  if (!show || !nextDose) return null;
+  if (info.activeCount === 0) return null;
 
-  const label =
-    nextDose.inMin < 0
-      ? `Hace ${Math.abs(nextDose.inMin)} min`
-      : nextDose.inMin === 0
-      ? "Ahora"
-      : `En ${nextDose.inMin} min`;
+  const urgent =
+    info.pendingCount > 0 &&
+    info.nextMin !== null &&
+    info.nextMin <= 15 &&
+    info.nextMin >= -10; // ventana de recordatorio
 
-  const markTaken = () => {
-    setMeds(setTakenToday(nextDose.med.id, true));
-  };
+  const bg = urgent ? "bg-red-500/15 border-red-400/30 text-red-200" : "bg-white/10 border-white/10";
+
+  const line =
+    info.pendingCount === 0
+      ? "Medicaciones al día ✅"
+      : info.nextMin === null
+        ? `Tienes ${info.pendingCount} pendiente(s) hoy`
+        : info.nextMin <= 0
+          ? `Toma ahora: ${info.nextMed?.name ?? "Medicación"} (${info.nextTime})`
+          : `Próxima: ${info.nextMed?.name ?? "Medicación"} en ${info.nextMin} min (${info.nextTime})`;
 
   return (
-    <div
-      className="fixed top-3 left-0 right-0 z-50 flex justify-center px-4"
-      role="status"
-      aria-live="polite"
+    <button
+      onClick={() => navTo("NOTES", "medicacion")}
+      className={
+        "w-full rounded-2xl border px-4 py-3 flex items-center justify-between gap-3 " +
+        bg
+      }
+      aria-label="Recordatorio de medicación"
+      title="Abrir Medicación"
     >
-      <div className="max-w-[820px] w-full glass border border-white/15 rounded-3xl px-4 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="bg-[#00f2ff] text-black rounded-2xl px-3 py-2 font-black flex items-center gap-2">
-            <AlarmClock size={18} /> {label}
-          </div>
-          <div>
-            <div className={"font-black flex items-center gap-2 " + (senior ? "text-lg" : "text-base")}>
-              <Pill size={18} /> {nextDose.med.name} <span className="opacity-70">({nextDose.time})</span>
-            </div>
-            <div className="text-xs opacity-70">
-              {nextDose.med.dose ? nextDose.med.dose : "Dosis no indicada"}
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={markTaken}
-          className="bg-green-500 text-black font-black rounded-2xl px-4 py-3 inline-flex items-center gap-2"
-          aria-label="Marcar tomado"
-        >
-          <CheckCircle2 size={18} /> Tomado
-        </button>
+      <div className="flex items-center gap-3">
+        {urgent ? <BellRing /> : <Pill />}
+        <div className={senior ? "text-base font-black" : "text-sm font-black"}>{line}</div>
       </div>
-    </div>
+      <div className="text-xs opacity-70">Abrir</div>
+    </button>
   );
 }
