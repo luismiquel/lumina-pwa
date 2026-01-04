@@ -111,3 +111,4 @@ self.addEventListener("message", (event) => {
     try { self.skipWaiting(); } catch {}
   }
 });
+

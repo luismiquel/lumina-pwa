@@ -1,6 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { onSWUpdateReady, applySWUpdate } from "@/swRegister";
-
+import { onSWUpdateReady, applySWUpdate, hasSWUpdateReady } from "@/swRegister";
 export default function UpdateToast() {
   const [show, setShow] = useState(false);
 
@@ -38,4 +37,5 @@ export default function UpdateToast() {
     </div>
   );
 }
+
 

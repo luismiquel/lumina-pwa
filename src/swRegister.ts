@@ -1,73 +1,98 @@
-﻿type UpdateHandler = () => void;
+﻿type UpdateListener = () => void;
 
-let updateHandlers: UpdateHandler[] = [];
-let waitingSW: ServiceWorker | null = null;
+let updateReadyListeners: UpdateListener[] = [];
+let waitingWorker: ServiceWorker | null = null;
+let updateFlag = false;
 
-export function onSWUpdateReady(fn: UpdateHandler) {
-  updateHandlers.push(fn);
+export function onSWUpdateReady(fn: UpdateListener) {
+  updateReadyListeners.push(fn);
+  return () => { updateReadyListeners = updateReadyListeners.filter(x => x !== fn); };
 }
 
-export function applySWUpdate() {
+function emitUpdateReady() {
+  updateFlag = true;
+  for (const fn of updateReadyListeners) {
+    try { fn(); } catch {}
+  }
+}
+
+export function hasSWUpdateReady() {
+  return updateFlag;
+}
+
+export async function applySWUpdate() {
+  if (!waitingWorker) return;
   try {
-    waitingSW?.postMessage({ type: "SKIP_WAITING" });
+    waitingWorker.postMessage({ type: "SKIP_WAITING" });
   } catch {}
 }
 
-// Registro SW solo en producción y fuera de localhost (evita 503/white screen en preview)
 export function registerSW() {
+  // Solo producción
   if (!import.meta.env.PROD) return;
   if (!("serviceWorker" in navigator)) return;
 
-  const host = location.hostname;
+  // Evita dolores de cabeza en localhost / vite preview
+  const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1") return;
 
   window.addEventListener("load", async () => {
     try {
       const reg = await navigator.serviceWorker.register("/sw.js");
 
-      // Si ya hay uno esperando (por ejemplo tras refresh), dispara aviso
+      // Si ya hay uno esperando al cargar, avisa
       if (reg.waiting) {
-        waitingSW = reg.waiting;
-        updateHandlers.forEach((h) => h());
+        waitingWorker = reg.waiting;
+        emitUpdateReady();
       }
 
+      // Detecta cuando llega una actualización
       reg.addEventListener("updatefound", () => {
-        const newWorker = reg.installing;
-        if (!newWorker) return;
+        const sw = reg.installing;
+        if (!sw) return;
 
-        newWorker.addEventListener("statechange", () => {
-          // Nuevo SW instalado y hay controlador previo => update listo
-          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-            waitingSW = newWorker;
-            updateHandlers.forEach((h) => h());
+        sw.addEventListener("statechange", () => {
+          // "installed" con controller => update lista
+          if (sw.state === "installed" && navigator.serviceWorker.controller) {
+            waitingWorker = sw;
+            emitUpdateReady();
           }
         });
       });
 
-      // Cuando el SW tome control, recargamos para coger assets nuevos
-      let refreshing = false;
+      // Cuando el SW toma control, recarga para usar el nuevo bundle
+      let reloaded = false;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (refreshing) return;
-        refreshing = true;
-        location.reload();
+        if (reloaded) return;
+        reloaded = true;
+        window.location.reload();
       });
     } catch {
-      // silencio
+      // silencioso
     }
   });
 }
 
-// Utilidad opcional: reset manual (si algo se rompe en producción)
-export async function resetSWAndCaches() {
+// Botón “Repair App”: desregistra SW + borra caches + recarga
+export async function repairApp() {
   try {
-    if (!("serviceWorker" in navigator)) return;
-
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map((r) => r.unregister()));
-
-    if ("caches" in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
     }
   } catch {}
+
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch {}
+
+  try {
+    // limpia flags locales de guía si quieres (opcional)
+    // localStorage.removeItem("lumina_seen_guide_v1");
+  } catch {}
+
+  window.location.reload();
 }
