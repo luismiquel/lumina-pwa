@@ -1,5 +1,6 @@
 ﻿import UndoToast from "@/app/components/UndoToast";
 import { useUndo } from "@/app/hooks/useUndo";
+import { navTo } from "@/app/navBus";
 function downloadTextFile(name: string, content: string, mime = "text/plain") {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -259,6 +260,9 @@ const [items, setItems] = useState<Note[]>([]);
     </>
 );
 }
+
+
+
 
 
 

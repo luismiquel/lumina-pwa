@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { Copy, MapPin, Send } from "lucide-react";
 
-export default function Finder(props: { senior: boolean }) {
+import { navTo } from "@/app/navBus";
+export default function Finder(props: { senior: boolean; onHelp?: () => void }) {
   const { senior } = props;
   const [pos, setPos] = useState<{lat:number; lon:number} | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -66,5 +67,8 @@ export default function Finder(props: { senior: boolean }) {
     </div>
   );
 }
+
+
+
 
 

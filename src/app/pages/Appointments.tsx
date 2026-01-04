@@ -10,6 +10,7 @@ import type { Appointment } from "@/domain/models/entities";
 import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 import { parseICS } from "@/infra/calendar/icsImport";
 import { db } from "@/infra/db/db";
+import { navTo } from "@/app/navBus";
 export default function Appointments(props: { senior?: boolean; onHelp?: () => void }) {
   const { senior } = props;
   /* LUMINA_READONLY_APPOINTMENTS_COMPAT */
@@ -140,6 +141,7 @@ return (
     </div>
   );
 }
+
 
 
 
