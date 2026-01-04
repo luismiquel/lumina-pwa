@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, BookOpen, Shield, WifiOff, Download, Upload, Wrench, Smartphone } from "lucide-react";
 
 type Section = {
@@ -8,8 +8,8 @@ type Section = {
   body: React.ReactNode;
 };
 
-export default function Guide(props: { senior: boolean; onClose: () => void }) {
-  const { senior, onClose } = props;
+export default function Guide(props: { senior: boolean; onClose: () => void; initialSection?: string }) {
+  const { senior, onClose, initialSection } = props;
 
   const [open, setOpen] = useState<Record<string, boolean>>({
     what: true,
@@ -25,7 +25,17 @@ export default function Guide(props: { senior: boolean; onClose: () => void }) {
   const pCls = senior ? "text-base" : "text-sm";
   const btnPad = senior ? "py-4" : "py-3";
 
-  const sections: Section[] = useMemo(() => ([
+  useEffect(() => {
+  if (!initialSection) return;
+  const id = "guide-" + initialSection;
+  const el = document.getElementById(id);
+  if (!el) return;
+  // abre la sección y hace scroll suave
+  setOpen((s) => ({ ...s, [initialSection]: true }));
+  setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+}, [initialSection]);
+
+const sections: Section[] = useMemo(() => ([
     {
       id: "what",
       title: "¿Qué es Lumina?",
@@ -200,3 +210,5 @@ export default function Guide(props: { senior: boolean; onClose: () => void }) {
     </div>
   );
 }
+
+

@@ -10,17 +10,10 @@ import type { Appointment } from "@/domain/models/entities";
 import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 import { parseICS } from "@/infra/calendar/icsImport";
 import { db } from "@/infra/db/db";
-export default function Appointments(props: { senior: boolean; readOnly?: boolean }) {
+export default function Appointments(props: { senior?: boolean; onHelp?: () => void }) {
   const { senior } = props;
-  
-  const readOnly = !!props.readOnly;
-
-
   /* LUMINA_READONLY_APPOINTMENTS_COMPAT */
-  const add = async () => {
-    if (readOnly) { alert("Modo solo lectura."); return; }
-
-    const title = prompt("Título de la cita:")?.trim() || "Cita";
+  const add = async () => {const title = prompt("Título de la cita:")?.trim() || "Cita";
     const dateTimeISO = prompt("Fecha/hora ISO (ej: 2026-01-03T12:30):")?.trim();
 
     if (!dateTimeISO) return;
@@ -48,10 +41,7 @@ export default function Appointments(props: { senior: boolean; readOnly?: boolea
 
     try { location.reload(); } catch {}};
 
-  const remove = async (id: string) => {
-    if (readOnly) { alert("Modo solo lectura."); return; }
-
-    const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
+  const remove = async (id: string) => {const repo: any = (AppointmentsRepo ?? (globalThis as any).AppointmentsRepo) as any;
 
     try {
       if (repo?.remove) await repo.remove(id);
@@ -79,8 +69,7 @@ export default function Appointments(props: { senior: boolean; readOnly?: boolea
   const load = async () => setList(await AppointmentsRepo.list());
   useEffect(() => { load(); }, []);
 
-  const addAppointment = async () => { if (readOnly) { alert("Modo solo lectura."); return; }
-    if (!title.trim() || !dt) return;
+  const addAppointment = async () => {if (!title.trim() || !dt) return;
     await AppointmentsRepo.add({
       title: title.trim(),
       place: place.trim() || undefined,
@@ -92,7 +81,7 @@ export default function Appointments(props: { senior: boolean; readOnly?: boolea
     await load();
   };
 
-  const removeAppointment = async (id: string) => { if (readOnly) { alert("Modo solo lectura."); return; }       if (!confirmDanger("¿Borrar esta cita?")) return;
+  const removeAppointment = async (id: string) => {if (!confirmDanger("¿Borrar esta cita?")) return;
       await AppointmentsRepo.remove(id);await load(); };
 
   const upcoming = useMemo(
@@ -151,6 +140,9 @@ return (
     </div>
   );
 }
+
+
+
 
 
 

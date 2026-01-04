@@ -34,7 +34,7 @@ export default function AppShell() {
     setView("HOME");
   };
 
-  const openGuide = () => { localStorage.setItem("lumina_seen_guide_v1", "1"); setView("GUIDE"); };
+  const openGuide = (section?: string) => { localStorage.setItem("lumina_seen_guide_v1", "1"); setView("GUIDE"); };
 
   
   const readOnly = !!settings?.readOnlyMode;
@@ -70,10 +70,10 @@ const { haptic } = useSeniorUX(senior);
 
         <main className="p-6 overflow-y-auto" style={{ height: "calc(92vh - 86px - 84px)" }}>
           {view === "HOME" && <HomePage onGo={setView} senior={senior} />}
-          {view === "APPOINTMENTS" && <Appointments senior={senior} readOnly={readOnly} />}
+          {view === "APPOINTMENTS" && <Appointments senior={senior} onHelp={() => openGuide("backup")} />}
           {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} />}
           {view === "DICTATION" && <Dictation senior={senior} />}
-          {view === "FINDER" && <Finder senior={senior} />}
+          {view === "FINDER" && <Finder senior={senior} onHelp={() => openGuide("offline")} />}
           {view === "SETTINGS" && <Settings />}
         </main>
 
@@ -130,6 +130,9 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
 
 
 
