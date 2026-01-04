@@ -30,7 +30,10 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
   const [doctor, setDoctor] = useState<string>(draft.doctor ?? "");
   const [dt, setDt] = useState<string>(draft.dt ?? toLocalInputValue(new Date()));
 
-  const [items, setItems] = useState<Appointment[]>([]);
+  
+  useEffect(() => {
+    saveDraft(DRAFT_KEY, { title, place, doctor, dt });
+  }, [title, place, doctor, dt]);const [items, setItems] = useState<Appointment[]>([]);
   const refresh = async () => setItems(await AppointmentsRepo.list());
 
   useEffect(() => { refresh(); }, []);
@@ -237,6 +240,7 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
     </div>
   );
 }
+
 
 
 

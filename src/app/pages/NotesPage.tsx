@@ -1,6 +1,8 @@
 ﻿import UndoToast from "@/app/components/UndoToast";
 import { useUndo } from "@/app/hooks/useUndo";
 import { navTo } from "@/app/navBus";
+import MedsPanel from "@/app/components/MedsPanel";
+import { loadDraft, saveDraft, clearDraft } from "@/infra/drafts/drafts";
 function downloadTextFile(name: string, content: string, mime = "text/plain") {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -365,6 +367,8 @@ return (
     </>
 );
 }
+
+
 
 
 
