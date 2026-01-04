@@ -261,3 +261,4 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
     </div>
   );
 }
+
