@@ -3,6 +3,7 @@ import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react";
 import { ShoppingRepo } from "@/infra/db/repositories";
 import type { ShoppingItem } from "@/domain/models/entities";
 
+import { navTo } from "@/app/navBus";
 export default function Shopping(props: { senior: boolean; readOnly?: boolean }) {
   const { senior } = props;
   const [items, setItems] = useState<ShoppingItem[]>([]);
@@ -52,4 +53,6 @@ export default function Shopping(props: { senior: boolean; readOnly?: boolean })
     </div>
   );
 }
+
+
 
