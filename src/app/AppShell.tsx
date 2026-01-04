@@ -1,4 +1,5 @@
-﻿import type { View } from "./nav";
+﻿import Overview from "@/app/pages/Overview";
+import type { View } from "./nav";
 import { useState } from "react";
 import {
   Home,
@@ -129,6 +130,9 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
 
 
 

@@ -29,7 +29,7 @@ function todayStamp() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function Settings() {
+export default function Settings(props: { onOpenGuide?: () => void; onOpenOverview?: () => void }) {
   const { settings, update } = useSettings();
   const [busy, setBusy] = useState(false);
 
@@ -180,6 +180,13 @@ const restoreFromObject = async (obj: unknown) => {
       <h2 className="font-black text-xl">Configuración</h2>
 
       <button
+        onClick={() => props.onOpenGuide?.()}
+        className="w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4"
+      >
+        GUÍA / INSTRUCCIONES
+      </button>
+
+      <button
         onClick={() => update({ seniorMode: !settings.seniorMode })}
         className="w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4"
       >
@@ -308,6 +315,9 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
+
 
 
 

@@ -12,6 +12,16 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
   if (senior) {
     return (
       <div className="space-y-4">
+      <button
+        onClick={() => onGo("OVERVIEW")}
+        className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
+        aria-label="Ver qué incluye la app"
+      >
+        <div className="font-black">QUÉ TIENE LA APP</div>
+        <div className="text-sm opacity-70 mt-1">
+          Funciones, backups, export, PWA, mantenimiento y privacidad.
+        </div>
+      </button>
       {showGuide && (
         <button
           onClick={() => onGo("GUIDE")}
@@ -91,6 +101,16 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
   // HOME normal (no senior): mantiene búsqueda global arriba
   return (
     <div className="space-y-4">
+      <button
+        onClick={() => onGo("OVERVIEW")}
+        className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
+        aria-label="Ver qué incluye la app"
+      >
+        <div className="font-black">QUÉ TIENE LA APP</div>
+        <div className="text-sm opacity-70 mt-1">
+          Funciones, backups, export, PWA, mantenimiento y privacidad.
+        </div>
+      </button>
       {showGuide && (
         <button
           onClick={() => onGo("GUIDE")}
@@ -139,6 +159,9 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     </div>
   );
 }
+
+
+
 
 
 
