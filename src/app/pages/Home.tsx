@@ -13,7 +13,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     return (
       <div className="space-y-4">
       <button
-        onClick={() => onGo("OVERVIEW")}
+        onClick={() => onGo("GUIDE")}
         className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
         aria-label="Ver qué incluye la app"
       >
@@ -102,7 +102,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
   return (
     <div className="space-y-4">
       <button
-        onClick={() => onGo("OVERVIEW")}
+        onClick={() => onGo("GUIDE")}
         className="w-full bg-white/10 hover:bg-white/15 border border-white/10 rounded-3xl p-4 text-left"
         aria-label="Ver qué incluye la app"
       >
@@ -159,6 +159,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     </div>
   );
 }
+
 
 
 
