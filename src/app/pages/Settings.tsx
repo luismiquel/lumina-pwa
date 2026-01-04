@@ -6,7 +6,7 @@ import { buildExportZipBytes } from "@/infra/bundle/exportBundle";
 import { importAllFromZip } from "@/infra/bundle/importBundle";
 import { exportAllAsZip } from "@/infra/bundle/exportBundle";
 import { clearAllCaches, deleteAllIndexedDb, getSwStatus, hardReload, unregisterAllServiceWorkers } from "@/app/utils/repair";
-import { resetSWAndCaches } from "@/swRegister";
+import { repairApp } from "@/swRegister";
 import { confirmDanger, confirmDoubleDanger } from "@/app/utils/confirm";
 import { db } from "@/infra/db/db";
 import { useEffect, useMemo, useState } from "react";
@@ -54,7 +54,7 @@ const [swStatus, setSwStatus] = useState<{ supported: boolean; controlled: boole
 
     setBusy(true);
     try {
-      await resetSWAndCaches();
+      await repairApp();
       alert("Caché limpiada. Recargando…");
       location.reload();
     } finally {
@@ -315,6 +315,7 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
 
 
 
