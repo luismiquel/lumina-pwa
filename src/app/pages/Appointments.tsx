@@ -81,8 +81,6 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
         title: a.title,
         startMs: Number.isFinite(startMs) ? startMs : Date.now(),
         // opcionales si tu tipo los tiene (no pasa nada si sobran y TS se queja, los quitamos luego)
-        location: a.place,
-        description: a.doctor ? `Doctor/a: ${a.doctor}` : undefined,
       } as any;
     });
 
@@ -107,7 +105,6 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
       doctor: p.doctor?.trim() || undefined,
       dateTimeISO: p.dateTimeISO,
       createdAt: now,
-      updatedAt: now,
     }));
 
     for (const a of rows) await AppointmentsRepo.add(a);
@@ -240,5 +237,8 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
     </div>
   );
 }
+
+
+
 
 
