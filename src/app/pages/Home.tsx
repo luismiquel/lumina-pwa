@@ -2,6 +2,7 @@
 import { CalendarDays, MapPin, ShoppingCart, FileText, Settings as SettingsIcon, Search } from "lucide-react";
 import GlobalSearch from "@/app/components/GlobalSearch";
 
+import { navTo } from "@/app/navBus";
 export default function HomePage(props: { onGo: (v: View) => void; senior: boolean }) {
   const { onGo, senior } = props;
 
@@ -159,6 +160,7 @@ export default function HomePage(props: { onGo: (v: View) => void; senior: boole
     </div>
   );
 }
+
 
 
 

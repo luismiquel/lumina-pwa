@@ -21,6 +21,7 @@ import Settings from "@/app/pages/Settings";
 import UpdateToast from "@/app/components/UpdateToast";
 import OfflineBadge from "@/app/components/OfflineBadge";
 import { onNav } from "@/app/navBus";
+import Guide from "@/app/pages/Guide";
 export default function AppShell() {
   const { settings } = useSettings();
   const [view, setView] = useState<View>(() => ((localStorage.getItem("lumina_seen_guide_v1") ? "HOME" : "GUIDE")));
@@ -135,6 +136,7 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
 
 
 
