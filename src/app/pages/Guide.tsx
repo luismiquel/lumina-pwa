@@ -1,285 +1,223 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Printer, Shield, WifiOff, HardDrive, MapPin, FileDown, FileUp, Smartphone, Mic, NotebookPen, ShoppingCart, CalendarDays, Wrench } from "lucide-react";
+import { ChevronDown, ChevronUp, Shield, WifiOff, Download, Upload, Wrench, MapPin, FileText, ShoppingCart, CalendarDays, Mic } from "lucide-react";
+import { consumeNavTarget } from "@/app/navBus";
 
 type SectionId =
-  | "overview"
   | "privacy"
   | "offline"
-  | "pwa"
-  | "backup"
   | "notes"
   | "shopping"
   | "appointments"
   | "dictation"
   | "finder"
-  | "troubleshooting";
+  | "backup"
+  | "repair";
 
 type Section = {
   id: SectionId;
   title: string;
   icon: any;
-  body: React.ReactNode;
+  body: JSX.Element;
 };
 
-export default function Guide(props: { senior: boolean; onClose: () => void; initialSection?: string }) {
-  const { senior, onClose, initialSection } = props;
+export default function Guide(props: { senior?: boolean; onClose?: () => void }) {
+  const senior = !!props.senior;
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [hideOnStart, setHideOnStart] = useState<boolean>(() => localStorage.getItem("lumina_seen_guide_v1") === "1");
 
-  const [open, setOpen] = useState<Record<string, boolean>>({
-    overview: true,
-  });
-
-  const sections: Section[] = useMemo(
-    () => [
-      {
-        id: "overview",
-        title: "Qué es Lumina Local",
-        icon: Shield,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Lumina Local es una PWA (app instalable) que funciona <b>sin IA</b>, <b>sin APIs de pago</b> y <b>sin servidores</b>.
-              Tus datos se guardan <b>en este dispositivo</b>.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Notas (local) + export/import</li>
-              <li>Compras (local) + export/import</li>
-              <li>Citas (local) + export/import ICS</li>
-              <li>Dictado (Web Speech del navegador si está disponible)</li>
-              <li>GPS emergencia (enlace OpenStreetMap + compartir)</li>
-              <li>Modo offline (PWA + Service Worker)</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "privacy",
-        title: "Privacidad y seguridad",
-        icon: Shield,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Lumina Local no envía datos a servicios externos. Los datos se guardan en el navegador (IndexedDB/LocalStorage).
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>No hay cuentas, ni login, ni nube obligatoria.</li>
-              <li>Backup/Restore se hace con archivos locales (JSON/CSV/ICS según módulo).</li>
-              <li>Si borras caché/datos del navegador, puedes perder datos si no has exportado.</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "offline",
-        title: "Modo offline",
-        icon: WifiOff,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              La app funciona sin internet una vez cargada e instalada como PWA. El Service Worker cachea recursos para que puedas abrirla offline.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Si ves pantalla blanca tras una actualización, entra en <b>Ajustes → Repair App</b>.</li>
-              <li>Evita abrir la app desde una pestaña vieja durante updates (mejor cerrar y abrir).</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "pwa",
-        title: "Instalar como app (PWA)",
-        icon: Smartphone,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              En Chrome/Edge: menú (⋯) → <b>Instalar aplicación</b> / <b>Install app</b>. Se crea un icono en el escritorio/menú.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Recomendado para modo offline estable.</li>
-              <li>Si cambias de navegador, los datos no se comparten (son locales del navegador).</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "backup",
-        title: "Backup y restore",
-        icon: HardDrive,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              En <b>Ajustes</b> puedes exportar una copia local y restaurarla cuando lo necesites.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li><b>Backup</b>: genera un archivo para guardar.</li>
-              <li><b>Restore</b>: carga el archivo y recupera los datos.</li>
-              <li>Consejo: guarda backups por fecha (ej. una vez a la semana).</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "notes",
-        title: "Notas",
-        icon: NotebookPen,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Notas rápidas guardadas en local. Puedes exportar/importar CSV para moverlas entre dispositivos.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Usa títulos claros y contenido breve.</li>
-              <li>Exporta periódicamente si son importantes.</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "shopping",
-        title: "Compras",
-        icon: ShoppingCart,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Lista de la compra local con marcado de completado. Export/import CSV para respaldo o migración.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Marca productos como hechos para mantener orden.</li>
-              <li>Exporta antes de limpiar datos del navegador.</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "appointments",
-        title: "Citas",
-        icon: CalendarDays,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Citas médicas o recordatorios guardados en local. Puedes exportar a <b>ICS</b> para importar en calendarios.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Export ICS: crea un archivo de calendario.</li>
-              <li>Import ICS: añade eventos desde un archivo (con confirmación).</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "dictation",
-        title: "Dictado",
-        icon: Mic,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Usa funciones del navegador para convertir voz a texto. Si tu navegador/sistema no lo soporta, puede no funcionar.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Concede permisos de micrófono.</li>
-              <li>Funciona mejor en Chrome/Edge.</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "finder",
-        title: "GPS emergencia",
-        icon: MapPin,
-        body: (
-          <div className="space-y-2">
-            <p className="opacity-80">
-              Obtiene tu ubicación y genera un enlace de OpenStreetMap para compartir por WhatsApp o copiar.
-            </p>
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li>Necesita permiso de ubicación del navegador.</li>
-              <li>En interiores puede tardar o ser menos exacto.</li>
-            </ul>
-          </div>
-        ),
-      },
-      {
-        id: "troubleshooting",
-        title: "Solución de problemas",
-        icon: Wrench,
-        body: (
-          <div className="space-y-2">
-            <ul className="list-disc pl-5 opacity-80 space-y-1">
-              <li><b>Pantalla blanca / 503</b>: Ajustes → <b>Repair App</b> y recarga.</li>
-              <li><b>Errores raros en consola</b>: prueba en incógnito (pueden ser extensiones).</li>
-              <li><b>No instala PWA</b>: usa HTTPS en producción, o `vite preview` local no siempre muestra “instalar”.</li>
-              <li><b>He perdido datos</b>: restaura backup si lo tienes (por eso es clave exportar).</li>
-            </ul>
-            <div className="mt-3 glass rounded-2xl p-4 border border-white/10">
-              <div className="font-black">Tip</div>
-              <div className="text-sm opacity-80 mt-1">
-                Si actualizas la app, cierra la ventana y vuelve a abrir para evitar cachés antiguos.
-              </div>
-            </div>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
+  // Si venimos desde navBus("GUIDE","section"), abrir sección y hacer scroll
   useEffect(() => {
-    if (!initialSection) return;
-    const id = String(initialSection).toLowerCase();
-    setOpen((s) => ({ ...s, [id]: true }));
-    const el = document.getElementById("guide-" + id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [initialSection]);
+    const t = consumeNavTarget();
+    if (!t || t.kind !== "GUIDE") return;
+
+    const section = (t.section || "") as SectionId;
+    if (!section) return;
+
+    setOpen((s) => ({ ...s, [section]: true }));
+
+    requestAnimationFrame(() => {
+      const el = document.getElementById("guide-" + section);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
+  const sections: Section[] = useMemo(() => ([
+    {
+      id: "privacy",
+      title: "Privacidad (100% local)",
+      icon: Shield,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <p>Esta app funciona SIN IA y SIN servicios externos. No envía tus datos a ningún servidor.</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Datos: se guardan en tu navegador (local).</li>
+            <li>Backup/Export: siempre a archivos en tu equipo.</li>
+            <li>Offline: funciona sin conexión.</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: "offline",
+      title: "Modo Offline y PWA",
+      icon: WifiOff,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <p>Instala la app como PWA para usarla como aplicación y offline.</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>Abre la app en Edge/Chrome.</li>
+            <li>Menú (⋯) → <b>Instalar aplicación</b>.</li>
+            <li>Ábrela desde el icono instalado.</li>
+          </ol>
+          <p className="text-sm opacity-70">En localhost/preview puede no aparecer “Instalar”. En producción (HTTPS) sí.</p>
+        </div>
+      ),
+    },
+    {
+      id: "notes",
+      title: "Notas (crear, buscar, exportar CSV)",
+      icon: FileText,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Crea notas rápidas.</li>
+            <li>Usa la búsqueda global para encontrarlas.</li>
+            <li>Export/Import CSV para llevarte o recuperar datos.</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: "shopping",
+      title: "Compras (lista + CSV)",
+      icon: ShoppingCart,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Añade productos.</li>
+            <li>Marca como comprado.</li>
+            <li>Export/Import CSV para respaldo rápido.</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: "appointments",
+      title: "Citas (ICS export/import)",
+      icon: CalendarDays,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Guarda tus citas médicas.</li>
+            <li>Exporta a ICS para calendario.</li>
+            <li>Importa ICS (te pedirá confirmación).</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: "dictation",
+      title: "Dictado (voz a texto)",
+      icon: Mic,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <p>Usa el dictado del navegador (Web Speech) si está disponible.</p>
+          <p className="text-sm opacity-70">Puede variar según el navegador/sistema. No usa APIs de pago.</p>
+        </div>
+      ),
+    },
+    {
+      id: "finder",
+      title: "GPS Emergencia (compartir ubicación)",
+      icon: MapPin,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Pulsa “Localizar ahora”.</li>
+            <li>Copia el enlace.</li>
+            <li>Compártelo por WhatsApp.</li>
+          </ul>
+          <p className="text-sm opacity-70">Necesita permiso de ubicación.</p>
+        </div>
+      ),
+    },
+    {
+      id: "backup",
+      title: "Backup/Restore (archivo local)",
+      icon: Download,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <ul className="list-disc pl-5 space-y-1">
+            <li><b>Backup</b> descarga una copia en tu equipo.</li>
+            <li><b>Restore</b> importa esa copia y restaura datos.</li>
+            <li>Recomendado: guardar copias por fecha.</li>
+          </ul>
+          <div className="flex items-center gap-2 text-sm opacity-80">
+            <Download size={16}/> Backup <span className="opacity-50">·</span> <Upload size={16}/> Restore
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "repair",
+      title: "Repair App (pantalla blanca / errores)",
+      icon: Wrench,
+      body: (
+        <div className="space-y-2 opacity-90">
+          <p>Si algo se queda raro (pantalla blanca, assets 503, etc.), usa:</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>Entra a Ajustes</li>
+            <li>Pulsa <b>Repair App</b></li>
+            <li>La app limpiará caches + SW y recargará</li>
+          </ol>
+        </div>
+      ),
+    },
+  ]), []);
+
+  const toggle = (id: SectionId) => setOpen((s) => ({ ...s, [id]: !s[id] }));
 
   const markSeen = () => {
     localStorage.setItem("lumina_seen_guide_v1", "1");
-    alert("Listo. No se mostrará al inicio.");
+    setHideOnStart(true);
+    alert("OK. Ya no se mostrará al inicio.");
   };
 
-  const printNow = () => window.print();
+  const showOnStart = () => {
+    localStorage.removeItem("lumina_seen_guide_v1");
+    setHideOnStart(false);
+    alert("OK. La guía se mostrará al inicio.");
+  };
 
   return (
     <div className="space-y-4">
       <div className="glass rounded-3xl p-6 border border-white/10">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={onClose}
-            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl px-4 py-3 inline-flex items-center gap-2"
-            aria-label="Volver"
-          >
-            <ArrowLeft /> Volver
-          </button>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={printNow}
-              className="bg-[#00f2ff] text-black font-black rounded-2xl px-4 py-3 inline-flex items-center gap-2"
-              aria-label="Imprimir guía"
-            >
-              <Printer /> Imprimir
-            </button>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className={"font-black " + (senior ? "text-3xl" : "text-xl")}>Guía / Instrucciones</h2>
+            <p className="opacity-70 mt-2">Todo local · Offline · Sin IA · Sin APIs de pago</p>
           </div>
+
+          {props.onClose && (
+            <button onClick={props.onClose} className="bg-white/10 border border-white/10 rounded-2xl px-4 py-2 font-black">
+              Cerrar
+            </button>
+          )}
         </div>
 
-        <h1 className={"mt-4 font-black tracking-tight " + (senior ? "text-3xl" : "text-2xl")}>Guía de Lumina Local</h1>
-        <p className="opacity-70 mt-2">
-          Manual rápido de uso. Todo funciona en local: sin IA, sin APIs de pago.
-        </p>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {!hideOnStart ? (
+            <button onClick={markSeen} className="bg-[#00f2ff] text-black font-black rounded-2xl py-3">
+              No mostrar al inicio
+            </button>
+          ) : (
+            <button onClick={showOnStart} className="bg-white/10 border border-white/10 font-black rounded-2xl py-3">
+              Mostrar al inicio
+            </button>
+          )}
 
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          <button
-            onClick={markSeen}
-            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3"
-            aria-label="No mostrar al inicio"
-          >
-            No mostrar al inicio
-          </button>
-
-          <button
-            onClick={() => alert("Consejo: Ajustes → Backup semanal.")}
-            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3"
-            aria-label="Consejo rápido"
-          >
-            Consejo rápido
+          <button onClick={() => window.print()} className="bg-white/10 border border-white/10 font-black rounded-2xl py-3">
+            Imprimir / PDF
           </button>
         </div>
       </div>
@@ -291,40 +229,27 @@ export default function Guide(props: { senior: boolean; onClose: () => void; ini
           return (
             <div key={s.id} id={"guide-" + s.id} className="glass rounded-3xl border border-white/10 overflow-hidden">
               <button
-                onClick={() => setOpen((o) => ({ ...o, [s.id]: !o[s.id] }))}
-                className="w-full px-5 py-4 flex items-center justify-between gap-3 text-left"
+                onClick={() => toggle(s.id)}
+                className="w-full px-5 py-4 flex items-center justify-between gap-3"
                 aria-expanded={isOpen}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center">
-                    <Icon size={20} />
+                  <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <Icon size={18}/>
                   </div>
-                  <div className={"font-black " + (senior ? "text-xl" : "text-base")}>{s.title}</div>
+                  <div className={"text-left font-black " + (senior ? "text-xl" : "text-base")}>{s.title}</div>
                 </div>
-                <div className={"opacity-60 " + (senior ? "text-lg" : "text-sm")}>{isOpen ? "—" : "+"}</div>
+                {isOpen ? <ChevronUp/> : <ChevronDown/>}
               </button>
 
-              {isOpen && <div className="px-5 pb-5">{s.body}</div>}
+              {isOpen && (
+                <div className="px-5 pb-5">
+                  <div className="border-t border-white/10 pt-4">{s.body}</div>
+                </div>
+              )}
             </div>
           );
         })}
-      </div>
-
-      <div className="glass rounded-3xl p-6 border border-white/10">
-        <div className="font-black flex items-center gap-2">
-          <FileDown /> Exporta antes de borrar
-        </div>
-        <p className="opacity-80 mt-2 text-sm">
-          Si limpias datos del navegador o reinstalas, puedes perder información. Haz backup/export regularmente.
-        </p>
-        <div className="flex items-center gap-2 mt-4">
-          <button
-            onClick={onClose}
-            className="w-full bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-3"
-          >
-            Cerrar guía
-          </button>
-        </div>
       </div>
     </div>
   );
