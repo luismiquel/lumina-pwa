@@ -1,10 +1,10 @@
-﻿import { setNavTarget } from "@/app/nav/navTarget";
+﻿import type { View } from "@/app/nav";
+import { setNavTarget } from "@/app/nav/navTarget";
 import { useEffect, useMemo, useState } from "react";
 import { Search, FileText, ShoppingCart, CalendarDays, X } from "lucide-react";
 import { db } from "@/infra/db/db";
 import type { Note, ShoppingItem, Appointment } from "@/domain/models/entities";
 
-type View = "HOME" | "APPOINTMENTS" | "SHOPPING" | "NOTES" | "DICTATION" | "FINDER" | "SETTINGS";
 
 type Result =
   | { kind: "NOTE"; id: string; title: string; subtitle: string }
@@ -199,6 +199,7 @@ export default function GlobalSearch(props: { senior: boolean; onGo: (v: View) =
     </div>
   );
 }
+
 
 
 
