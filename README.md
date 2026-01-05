@@ -42,12 +42,13 @@ Los datos **no salen nunca de tu dispositivo**.
 ### 💊 Medicación
 - Registro y seguimiento de medicación
 - Recordatorios locales
-- Sin consejos médicos automáticos
-- Sin envío de datos a terceros
+- Integrado con notas y citas
+- Lumina **no da consejos médicos**
+- No se envían datos fuera del dispositivo
 
 ### 🎙️ Dictado
 - Voz a texto usando el navegador
-- Procesado local (según compatibilidad del navegador)
+- Procesado local (según compatibilidad)
 
 ### 📍 GPS de emergencia
 - Compartir tu ubicación manualmente
