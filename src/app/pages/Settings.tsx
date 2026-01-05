@@ -14,9 +14,9 @@ import { Download, Lock, Upload } from "lucide-react";
 import { exportBackup, importBackup, type BackupV1 } from "@/infra/db/backup";
 import { useSettings } from "@/app/hooks/useSettings";
 import { decryptBackup, encryptBackup, isEncryptedBackup, type EncryptedBackupV1 } from "@/infra/crypto/backupCrypto";
-
 import { navTo } from "@/app/navBus";
 import AboutPanel from "@/app/components/AboutPanel";
+import LegalNotice from "@/app/components/LegalNotice";
 function downloadJson(name: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -320,6 +320,8 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
 
 
 
