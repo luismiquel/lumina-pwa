@@ -180,6 +180,9 @@ const restoreFromObject = async (obj: unknown) => {
   return (
     <div className="glass rounded-3xl p-6 border border-white/10 space-y-4">
       <h2 className="font-black text-xl">Configuración</h2>
+      {/* Acerca de / Manifiesto */}
+      <AboutPanel senior={!!settings?.seniorMode} />
+
 
       <button
         onClick={() => props.onOpenGuide?.()}
@@ -317,6 +320,8 @@ const restoreFromObject = async (obj: unknown) => {
     </div>
   );
 }
+
+
 
 
 
