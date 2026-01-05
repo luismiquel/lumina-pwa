@@ -1,62 +1,67 @@
-<<<<<<< HEAD
-# LUMINA LOCAL
+﻿# LUMINA LOCAL
 
-**Aplicación web progresiva (PWA) 100% local, offline y sin IA.**  
-Sin cuentas, sin servidores, sin APIs de pago, sin rastreo.
+Aplicación web progresiva (PWA) **100% local y offline** para organización personal.
 
----
+✔ Sin IA  
+✔ Sin cuentas  
+✔ Sin servidores  
+✔ Sin APIs de pago  
+✔ Sin rastreo  
 
-## ✨ Qué es Lumina Local
-
-**Lumina Local** es una aplicación diseñada para organizar información personal
-de forma **privada y sencilla**, funcionando **completamente en el dispositivo del usuario**.
-
-No utiliza inteligencia artificial artificial, no envía datos a la nube y no depende
-de servicios externos.
-
-👉 Tus datos son **tuyos**, y solo tuyos.
+Todo funciona **en tu dispositivo**.
 
 ---
 
-## 🔐 Principios clave
+## ✨ ¿Qué es Lumina Local?
 
-- ✅ **Offline-first**: funciona sin conexión a Internet
-- ✅ **Sin IA**: decisiones transparentes, sin “cajas negras”
-- ✅ **Sin APIs de pago**: sin costes ocultos
-- ✅ **Privacidad real**: datos almacenados localmente (IndexedDB)
-- ✅ **Sin cuentas ni registros**
-- ✅ **Modo accesible (senior) opcional**
-- ✅ **Instalable como PWA**
+**Lumina Local** es una aplicación diseñada para ayudarte a organizar tu información personal
+de forma **privada, sencilla y segura**, sin depender de Internet ni de servicios externos.
+
+Los datos **no salen nunca de tu dispositivo**.
 
 ---
 
 ## 🧩 Funcionalidades principales
 
-- 📝 **Notas**
-  - Plantillas (salud, citas, medicación)
-  - Exportación CSV
+### 📝 Notas
+- Crear, editar y buscar notas
+- Plantillas (Salud, Citas médicas, Medicación)
+- Exportación CSV
 
-- 📅 **Citas médicas**
-  - Crear, editar y borrar
-  - Exportar / importar calendario (ICS)
+### 📅 Citas
+- Guardar citas médicas o personales
+- Importar / exportar calendario (ICS)
+- Recordatorios locales
 
-- 🛒 **Lista de la compra**
-  - Marcar como completado
-  - Exportar / importar CSV
+### 🛒 Lista de la compra
+- Añadir productos
+- Marcar como completado
+- Importar / exportar CSV
+- Uso totalmente offline
 
-- 🎙️ **Dictado**
-  - Voz a texto (cuando el navegador lo permite)
+### 💊 Medicación
+- Registro y seguimiento de medicación
+- Recordatorios locales
+- Sin consejos médicos automáticos
+- Sin envío de datos a terceros
 
-- 📍 **GPS de emergencia**
-  - Compartir ubicación manualmente
+### 🎙️ Dictado
+- Voz a texto usando el navegador
+- Procesado local (según compatibilidad del navegador)
 
-- 💾 **Copias de seguridad**
-  - Backup local
-  - Backup cifrado con contraseña
-  - Restauración desde archivo
+### 📍 GPS de emergencia
+- Compartir tu ubicación manualmente
+- Sin seguimiento continuo
+- Sin servidores
 
-- 🛠️ **Reparación de la app**
-  - Limpieza de datos en caso de errores
+### 💾 Copias de seguridad
+- Backup manual a archivo local
+- Restauración completa
+- Opción de backup cifrado con contraseña
+
+### 🛠️ Reparación de la app
+- Limpieza de caché y datos
+- Solución de pantalla blanca o errores
 
 ---
 
@@ -71,9 +76,31 @@ pero incluye un **modo senior opcional** con:
 
 ---
 
-## ⚠️ Importante sobre los datos
+## 🔒 Privacidad y filosofía
 
-Los datos se guardan **exclusivamente en este dispositivo**.
+- ❌ Sin inteligencia artificial
+- ❌ Sin APIs de pago
+- ❌ Sin cuentas
+- ❌ Sin anuncios
+- ❌ Sin tracking
+
+✔ Todo local  
+✔ Control total del usuario  
+✔ Transparente y simple  
+
+---
+
+## 📱 PWA / Offline
+
+- Funciona sin conexión a Internet
+- Instalable como aplicación (PWA)
+- Ideal para móvil, tablet y escritorio
+
+---
+
+## ⚠️ Importante
+
+Los datos se guardan **solo en este dispositivo**.
 
 Si borras:
 - datos del navegador
@@ -82,116 +109,7 @@ Si borras:
 
 👉 **puedes perder la información**.
 
-📌 Recomendación:  
-**haz copias de seguridad periódicas** desde Ajustes.
-
----
-
-## 🧱 Tecnología
-
-- React
-- TypeScript
-- Vite
-- IndexedDB (Dexie)
-- PWA (instalable)
-
-⚠️ No se utiliza:
-- Backend
-- Bases de datos remotas
-- Servicios externos
-- Inteligencia artificial
-
----
-
-## 🚀 Desarrollo local
-
-```bash
-npm install
-npm run dev
-=======
-﻿# LUMINA LOCAL
-
-Aplicación **100% local y offline** para organización personal.  
-Sin IA. Sin cuentas. Sin APIs de pago. Sin rastreo.
-
----
-
-## ✨ Qué es Lumina
-
-**Lumina Local** es una app PWA diseñada para funcionar **sin Internet**,  
-pensada para **cualquier persona**, con un **modo senior opcional** para mayor accesibilidad.
-
-Todos los datos se guardan **solo en tu dispositivo** (IndexedDB).
-
----
-
-## 🧩 Funciones principales
-
-### 📝 Notas
-- Crear, editar y buscar notas
-- Plantillas (salud, citas, medicación)
-- Exportación CSV
-
-### 🗓️ Citas
-- Guardar citas médicas o personales
-- Importar / exportar calendario (ICS)
-- Recordatorios locales
-
-### 🛒 Lista de la compra
-- Añadir y marcar productos
-- Importar / exportar CSV
-- Uso totalmente offline
-
-### 💊 Medicamentos
-- Recordatorios de medicación
-- Avisos locales (sin servidores)
-- Integrado con notas y citas
-- **Lumina no da consejos médicos**
-- **No se envían datos fuera del dispositivo**
-
-### 📍 GPS Emergencia
-- Compartir tu ubicación manualmente
-- Sin seguimiento ni servidores
-
-### 🗣️ Dictado
-- Voz a texto usando el navegador
-- Todo se procesa localmente
-
-### 💾 Copias de seguridad
-- Backup manual en archivo local
-- Restauración completa
-- Opción de backup cifrado
-
----
-
-## 🔐 Privacidad y filosofía
-
-- ❌ Sin IA
-- ❌ Sin APIs de pago
-- ❌ Sin cuentas
-- ❌ Sin anuncios
-- ❌ Sin tracking
-
-✔️ Todo local  
-✔️ Control total del usuario  
-✔️ Transparente y simple  
-
----
-
-## 📱 PWA / Offline
-
-- Funciona sin conexión
-- Instalable como app
-- Ideal para móvil, tablet o escritorio
-
----
-
-## ⚠️ Importante
-
-Los datos se guardan **en este dispositivo**.  
-Si borras el almacenamiento del navegador o reinstalas, **puedes perderlos**.
-
-👉 Recomendación: **haz copias de seguridad periódicas**.
+Recomendación: **haz copias de seguridad periódicas** desde Ajustes.
 
 ---
 
@@ -202,4 +120,3 @@ Todos los derechos reservados.
 
 Uso personal permitido.  
 Uso comercial o redistribución requiere autorización expresa del autor.
->>>>>>> 448b989 (docs: README en español + copyright)
