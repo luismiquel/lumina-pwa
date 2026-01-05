@@ -56,3 +56,7 @@ node_modules
 *.bak_*
 src/_trash/
 
+
+# archivos basura accidentales
+*a del autor*
+
