@@ -23,6 +23,7 @@ import OfflineBadge from "@/app/components/OfflineBadge";
 import { onNav } from "@/app/navBus";
 import Guide from "@/app/pages/Guide";
 import MedsReminderBar from "@/app/components/MedsReminderBar";
+import DbRepairBanner from "@/app/components/DbRepairBanner";
 export default function AppShell() {
   const { settings } = useSettings();
   const [view, setView] = useState<View>("GUIDE");
@@ -140,6 +141,7 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
 
 
 
