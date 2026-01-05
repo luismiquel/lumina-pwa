@@ -29,7 +29,15 @@ export class LuminaDB extends Dexie {
       // primary key id + índice dateTimeISO (lo usa repositories.ts)
       appointments: "id,dateTimeISO",
     });
-  }
+  
+    // v2: añadimos tablas nuevas (upgrade automático)
+    this.version(2).stores({
+      settings: "key",
+      notes: "id",
+      appointments: "id,dateTimeISO,createdAt",
+      shopping: "id,completed,createdAt",
+    });
+}
 }
 
 export const db = new LuminaDB();
@@ -77,5 +85,6 @@ export async function openDbSafe(opts?: { autoRepair?: boolean }): Promise<{ ok:
     }
   }
 }
+
 
 
