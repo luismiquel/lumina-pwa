@@ -161,24 +161,4 @@ export class ShoppingRepo {
   }
 }
 
-export const ExpensesRepo = {
-  async list(): Promise<any[]> {
-    return (db as any).expenses.orderBy("createdAt").reverse().toArray();
-  },
-  async add(description: string, amount: number, category: string, dateISO?: string): Promise<void> {
-    const exp = {
-      id: crypto.randomUUID(),
-      description,
-      amount,
-      category: (category || "General").trim() || "General",
-      date: dateISO || new Date().toISOString(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    await (db as any).expenses.add(exp);
-  },
-  async remove(id: string): Promise<void> {
-    await (db as any).expenses.delete(id);
-  },
-};
 
