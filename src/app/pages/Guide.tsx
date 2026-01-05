@@ -208,6 +208,19 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className={"font-black " + (senior ? "text-3xl" : "text-xl")}>Guía / Instrucciones</h2>
+            <div className="glass rounded-3xl p-5 border border-white/10 mt-4">
+              <div className="font-black text-lg">Qué puedes hacer con Lumina</div>
+              <ul className="mt-3 space-y-2 opacity-90">
+                <li>• Notas (incluye plantillas: Salud, Citas médicas, Medicación).</li>
+                <li>• Citas médicas: guarda, borra y exporta a calendario (ICS).</li>
+                <li>• Lista de la compra: añade, marca como hecho y exporta/importa CSV.</li>
+                <li>• Todo funciona offline: sin IA y sin APIs de pago.</li>
+              </ul>
+              <div className="mt-3 text-sm opacity-70">
+                Consejo: usa los botones de Ayuda en cada pantalla para abrir esta guía en la sección correcta.
+              </div>
+            </div>
+
             <p className="opacity-70 mt-2">Todo local · Offline · Sin IA · Sin APIs de pago</p>
           </div>
           {props.onClose && (
@@ -262,6 +275,7 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
     </div>
   );
 }
+
 
 
 
