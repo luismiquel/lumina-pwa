@@ -26,7 +26,7 @@ import MedsReminderBar from "@/app/components/MedsReminderBar";
 import DbRepairBanner from "@/app/components/DbRepairBanner";
 export default function AppShell() {
   const { settings } = useSettings();
-  const [view, setView] = useState<View>("GUIDE");
+  const [view, setView] = useState<View>(() => (localStorage.getItem("lumina_seen_guide_v1") === "1" ? "HOME" : "GUIDE"));
 const [guideSection, setGuideSection] = useState<string | undefined>(undefined);
       const senior = !!settings?.seniorMode;
 
@@ -42,7 +42,10 @@ const [guideSection, setGuideSection] = useState<string | undefined>(undefined);
     setView("HOME");
   };
 
-  const openGuide = (section?: string) => { localStorage.setItem("lumina_seen_guide_v1", "1"); setView("GUIDE"); };
+      const openGuide = (section?: string) => {
+    setGuideSection(section);
+    setView("GUIDE");
+  };
 
   
   const readOnly = !!settings?.readOnlyMode;
@@ -77,11 +80,12 @@ const { haptic } = useSeniorUX(senior);
         </header>
 
         <main className="p-6 overflow-y-auto" style={{ height: "calc(92vh - 86px - 84px)" }}>
-          {view === "HOME" && <HomePage onGo={setView} senior={senior} />}
+                    {view === "GUIDE" && <Guide senior={senior} onClose={closeGuide} section={guideSection} />}
+{view === "HOME" && <HomePage onGo={setView} senior={senior} />}
           {view === "APPOINTMENTS" && <Appointments senior={senior} />}
           {view === "SHOPPING" && <Shopping senior={senior} readOnly={readOnly} /> }
           {view === "DICTATION" && <Dictation senior={senior} />}
-          {view === "FINDER" && <Finder senior={senior} onHelp={() => openGuide("offline")} />}
+          {view === "FINDER" && <Finder senior={senior} onHelp={() => openGuide("finder")} />}
           {view === "SETTINGS" && <Settings />}
         </main>
 
@@ -141,6 +145,12 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
+
+
+
+
+
 
 
 

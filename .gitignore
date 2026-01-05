@@ -51,3 +51,8 @@ node_modules
 # backups
 *.bak
 *.legacy.bak
+
+# local backups
+*.bak_*
+src/_trash/
+
