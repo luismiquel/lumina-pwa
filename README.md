@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# LUMINA LOCAL
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Aplicación web progresiva (PWA) 100% local, offline y sin IA.**  
+Sin cuentas, sin servidores, sin APIs de pago, sin rastreo.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Qué es Lumina Local
 
-## React Compiler
+**Lumina Local** es una aplicación diseñada para organizar información personal
+de forma **privada y sencilla**, funcionando **completamente en el dispositivo del usuario**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+No utiliza inteligencia artificial artificial, no envía datos a la nube y no depende
+de servicios externos.
 
-## Expanding the ESLint configuration
+👉 Tus datos son **tuyos**, y solo tuyos.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🔐 Principios clave
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- ✅ **Offline-first**: funciona sin conexión a Internet
+- ✅ **Sin IA**: decisiones transparentes, sin “cajas negras”
+- ✅ **Sin APIs de pago**: sin costes ocultos
+- ✅ **Privacidad real**: datos almacenados localmente (IndexedDB)
+- ✅ **Sin cuentas ni registros**
+- ✅ **Modo accesible (senior) opcional**
+- ✅ **Instalable como PWA**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧩 Funcionalidades principales
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- 📝 **Notas**
+  - Plantillas (salud, citas, medicación)
+  - Exportación CSV
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- 📅 **Citas médicas**
+  - Crear, editar y borrar
+  - Exportar / importar calendario (ICS)
+
+- 🛒 **Lista de la compra**
+  - Marcar como completado
+  - Exportar / importar CSV
+
+- 🎙️ **Dictado**
+  - Voz a texto (cuando el navegador lo permite)
+
+- 📍 **GPS de emergencia**
+  - Compartir ubicación manualmente
+
+- 💾 **Copias de seguridad**
+  - Backup local
+  - Backup cifrado con contraseña
+  - Restauración desde archivo
+
+- 🛠️ **Reparación de la app**
+  - Limpieza de datos en caso de errores
+
+---
+
+## ♿ Accesibilidad
+
+Lumina Local **no es solo para personas mayores**,  
+pero incluye un **modo senior opcional** con:
+
+- Botones grandes
+- Menos ruido visual
+- Flujo simplificado
+
+---
+
+## ⚠️ Importante sobre los datos
+
+Los datos se guardan **exclusivamente en este dispositivo**.
+
+Si borras:
+- datos del navegador
+- caché
+- o reinstalas la app
+
+👉 **puedes perder la información**.
+
+📌 Recomendación:  
+**haz copias de seguridad periódicas** desde Ajustes.
+
+---
+
+## 🧱 Tecnología
+
+- React
+- TypeScript
+- Vite
+- IndexedDB (Dexie)
+- PWA (instalable)
+
+⚠️ No se utiliza:
+- Backend
+- Bases de datos remotas
+- Servicios externos
+- Inteligencia artificial
+
+---
+
+## 🚀 Desarrollo local
+
+```bash
+npm install
+npm run dev
