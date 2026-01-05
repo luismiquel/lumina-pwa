@@ -1,4 +1,4 @@
-﻿# LUMINA LOCAL
+# LUMINA LOCAL
 
 Aplicación web progresiva (PWA) **100% local y offline** para organización personal.
 
