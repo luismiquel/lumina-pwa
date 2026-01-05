@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LUMINA LOCAL
 
 **Aplicación web progresiva (PWA) 100% local, offline y sin IA.**  
@@ -107,3 +108,98 @@ Si borras:
 ```bash
 npm install
 npm run dev
+=======
+﻿# LUMINA LOCAL
+
+Aplicación **100% local y offline** para organización personal.  
+Sin IA. Sin cuentas. Sin APIs de pago. Sin rastreo.
+
+---
+
+## ✨ Qué es Lumina
+
+**Lumina Local** es una app PWA diseñada para funcionar **sin Internet**,  
+pensada para **cualquier persona**, con un **modo senior opcional** para mayor accesibilidad.
+
+Todos los datos se guardan **solo en tu dispositivo** (IndexedDB).
+
+---
+
+## 🧩 Funciones principales
+
+### 📝 Notas
+- Crear, editar y buscar notas
+- Plantillas (salud, citas, medicación)
+- Exportación CSV
+
+### 🗓️ Citas
+- Guardar citas médicas o personales
+- Importar / exportar calendario (ICS)
+- Recordatorios locales
+
+### 🛒 Lista de la compra
+- Añadir y marcar productos
+- Importar / exportar CSV
+- Uso totalmente offline
+
+### 💊 Medicamentos
+- Recordatorios de medicación
+- Avisos locales (sin servidores)
+- Integrado con notas y citas
+- **Lumina no da consejos médicos**
+- **No se envían datos fuera del dispositivo**
+
+### 📍 GPS Emergencia
+- Compartir tu ubicación manualmente
+- Sin seguimiento ni servidores
+
+### 🗣️ Dictado
+- Voz a texto usando el navegador
+- Todo se procesa localmente
+
+### 💾 Copias de seguridad
+- Backup manual en archivo local
+- Restauración completa
+- Opción de backup cifrado
+
+---
+
+## 🔐 Privacidad y filosofía
+
+- ❌ Sin IA
+- ❌ Sin APIs de pago
+- ❌ Sin cuentas
+- ❌ Sin anuncios
+- ❌ Sin tracking
+
+✔️ Todo local  
+✔️ Control total del usuario  
+✔️ Transparente y simple  
+
+---
+
+## 📱 PWA / Offline
+
+- Funciona sin conexión
+- Instalable como app
+- Ideal para móvil, tablet o escritorio
+
+---
+
+## ⚠️ Importante
+
+Los datos se guardan **en este dispositivo**.  
+Si borras el almacenamiento del navegador o reinstalas, **puedes perderlos**.
+
+👉 Recomendación: **haz copias de seguridad periódicas**.
+
+---
+
+## © Copyright
+
+© 2026 **Luis Miguel García de las Morenas**  
+Todos los derechos reservados.
+
+Uso personal permitido.  
+Uso comercial o redistribución requiere autorización expresa del autor.
+>>>>>>> 448b989 (docs: README en español + copyright)

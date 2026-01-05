@@ -1,0 +1,15 @@
+﻿© 2026 Luis Miguel García de las Morenas
+
+Lumina Local es una aplicación 100% local.
+Todos los datos se almacenan únicamente en este dispositivo.
+
+No se usan servicios en la nube.
+No se utiliza inteligencia artificial.
+No se realizan conexiones a APIs de pago.
+
+Uso personal permitido.
+El uso comercial o la redistribución requieren autorización expresa del autor.
+
+El autor no se responsabiliza por la pérdida de datos derivada
+del borrado del navegador, del dispositivo o de copias locales.
+Se recomienda realizar copias de seguridad periódicas.
