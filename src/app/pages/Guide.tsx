@@ -34,18 +34,16 @@ type Section = {
   body: React.ReactNode;
 };
 
-export default function Guide(props: { senior?: boolean; onClose?: () => void }) {
+export default function Guide(props: { senior?: boolean; onClose?: () => void; section?: string }) {
   const senior = !!props.senior;
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [hideOnStart, setHideOnStart] = useState<boolean>(() => localStorage.getItem("lumina_seen_guide_v1") === "1");
 
   useEffect(() => {
-    const t = consumeNavTarget();
-    if (!t || t.kind !== "GUIDE") return;
-    const section = (t.section || "") as SectionId;
-    if (!section) return;
-
-    setOpen((s) => ({ ...s, [section]: true }));
+        const t = consumeNavTarget();    const sectionFromNav = (t && t.kind === "GUIDE") ? ((t.section || "") as SectionId) : undefined;
+    const sectionFromProps = (props.section || "") as SectionId;
+    const section = (sectionFromNav || sectionFromProps || "") as SectionId;
+    if (!section) return;setOpen((s) => ({ ...s, [section]: true }));
     requestAnimationFrame(() => {
       document.getElementById("guide-" + section)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -208,6 +206,9 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className={"font-black " + (senior ? "text-3xl" : "text-xl")}>Guía / Instrucciones</h2>
+            <div className="mt-4 p-4 rounded-2xl bg-yellow-400 text-black font-black">
+            </div>
+
             <div className="glass rounded-3xl p-5 border border-white/10 mt-4">
               <div className="font-black text-lg">Qué puedes hacer con Lumina</div>
               <ul className="mt-3 space-y-2 opacity-90">
@@ -275,6 +276,10 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
     </div>
   );
 }
+
+
+
+
 
 
 
