@@ -203,7 +203,7 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-white">
       <div className="glass rounded-3xl p-6 border border-white/10">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -275,6 +275,7 @@ export default function Guide(props: { senior?: boolean; onClose?: () => void })
     </div>
   );
 }
+
 
 
 
