@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { Pill, Plus, PauseCircle, PlayCircle, Trash2, Save } from "lucide-react";
+import { Pill, Plus, PauseCircle, PlayCircle, Trash2, Save, X } from "lucide-react";
 import { MedsRepo } from "@/infra/db/repos";
 
 type Med = {
@@ -19,30 +19,39 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
   const [items, setItems] = useState<Med[]>([]);
   const [editing, setEditing] = useState<Med | null>(null);
 
-  const empty: Med = useMemo(() => ({
-    id: crypto.randomUUID(),
-    name: "",
-    dosage: "",
-    schedule: "",
-    notes: "",
-    active: true,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  }), []);
+  const empty: Med = useMemo(
+    () => ({
+      id: crypto.randomUUID(),
+      name: "",
+      dosage: "",
+      schedule: "",
+      notes: "",
+      active: true,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }),
+    []
+  );
 
   const refresh = async () => {
     const list = await MedsRepo.list();
     setItems(list as Med[]);
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
 
   const startNew = () => setEditing({ ...empty });
 
   const save = async () => {
     if (!editing) return;
+
     const name = (editing.name || "").trim();
-    if (!name) { alert("Nombre del medicamento obligatorio."); return; }
+    if (!name) {
+      alert("Nombre del medicamento obligatorio.");
+      return;
+    }
 
     await MedsRepo.upsert({
       ...editing,
@@ -67,30 +76,35 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
     await refresh();
   };
 
-  const actives = items.filter(i => i.active).sort((a,b) => a.name.localeCompare(b.name));
-  const paused  = items.filter(i => !i.active).sort((a,b) => a.name.localeCompare(b.name));
+  const actives = items.filter((i) => i.active).sort((a, b) => a.name.localeCompare(b.name));
+  const paused = items.filter((i) => !i.active).sort((a, b) => a.name.localeCompare(b.name));
+
+  const inputCls =
+    "w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder-white/50";
 
   return (
-    <div className="space-y-4 text-white">
+    <div className="p-6 space-y-4 max-w-3xl mx-auto text-white">
       <div className="glass rounded-3xl p-6 border border-white/10">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className={"font-black tracking-tight " + (senior ? "text-3xl" : "text-xl")}>
-              <span className="inline-flex items-center gap-2"><Pill size={20}/> Medicamentos</span>
+              <span className="inline-flex items-center gap-2">
+                <Pill size={20} /> Medicamentos
+              </span>
             </div>
-            <div className="opacity-70 mt-1">
-              Lista de medicamentos recetados (uso personal). Sin IA. Sin servidores.
-            </div>
+            <div className="opacity-70 mt-1 text-sm">Lista de medicamentos recetados (uso personal). Sin IA. Sin servidores.</div>
             <div className="text-xs opacity-60 mt-2">
               Importante: Lumina no da consejos médicos. Sigue siempre la pauta de tu médico.
             </div>
           </div>
+
           {props.onClose && (
             <button
               onClick={props.onClose}
-              className="bg-white/10 border border-white/10 rounded-2xl px-4 py-2 font-black"
+              className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl px-4 py-2 font-black inline-flex items-center gap-2"
+              aria-label="Cerrar"
             >
-              Cerrar
+              <X size={16} /> Cerrar
             </button>
           )}
         </div>
@@ -98,8 +112,9 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
         <button
           onClick={startNew}
           className="mt-4 w-full rounded-2xl py-3 font-black inline-flex items-center justify-center gap-2 bg-[#00f2ff] text-black"
+          aria-label="Añadir medicamento"
         >
-          <Plus size={18}/> Añadir medicamento
+          <Plus size={18} /> Añadir medicamento
         </button>
       </div>
 
@@ -108,37 +123,43 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
           <div className="font-black text-lg">Editar / Nuevo</div>
 
           <input
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
+            className={inputCls}
             placeholder="Nombre (obligatorio) — ej: Enalapril"
             value={editing.name}
             onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+            aria-label="Nombre del medicamento"
           />
 
           <div className="grid grid-cols-1 gap-2">
             <input
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
+              className={inputCls}
               placeholder="Dosis — ej: 10 mg"
               value={editing.dosage || ""}
               onChange={(e) => setEditing({ ...editing, dosage: e.target.value })}
+              aria-label="Dosis"
             />
+
             <input
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
+              className={inputCls}
               placeholder="Horario — ej: 08:00 y 20:00"
               value={editing.schedule || ""}
               onChange={(e) => setEditing({ ...editing, schedule: e.target.value })}
+              aria-label="Horario"
             />
+
             <textarea
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none min-h-[88px] text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
+              className={inputCls + " min-h-[96px]"}
               placeholder="Indicaciones del médico (opcional)"
               value={editing.notes || ""}
               onChange={(e) => setEditing({ ...editing, notes: e.target.value })}
+              aria-label="Indicaciones"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <button
               onClick={() => setEditing(null)}
-              className="bg-white/10 border border-white/10 rounded-2xl py-3 font-black"
+              className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl py-3 font-black"
             >
               Cancelar
             </button>
@@ -146,7 +167,7 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
               onClick={save}
               className="bg-purple-500 text-black rounded-2xl py-3 font-black inline-flex items-center justify-center gap-2"
             >
-              <Save size={18}/> Guardar
+              <Save size={18} /> Guardar
             </button>
           </div>
         </div>
@@ -154,9 +175,11 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
 
       <div className="glass rounded-3xl p-6 border border-white/10 space-y-4">
         <div className="font-black text-lg">Activos</div>
-        {actives.length === 0 && <div className="opacity-60">No hay medicamentos activos.</div>}
+
+        {actives.length === 0 && <div className="opacity-70">No hay medicamentos activos.</div>}
+
         <div className="space-y-2">
-          {actives.map(m => (
+          {actives.map((m) => (
             <div key={m.id} className="bg-white/5 border border-white/10 rounded-2xl p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -168,27 +191,28 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
                   )}
                   {m.notes && <div className="text-sm opacity-70 mt-1">{m.notes}</div>}
                 </div>
+
                 <div className="flex gap-2">
                   <button
                     onClick={() => setEditing({ ...m })}
-                    className="bg-white/10 border border-white/10 rounded-2xl px-3 py-2 font-black"
+                    className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl px-3 py-2 font-black"
                     title="Editar"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => toggleActive(m)}
-                    className="bg-white/10 border border-white/10 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
+                    className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
                     title="Pausar"
                   >
-                    <PauseCircle size={16}/> Pausar
+                    <PauseCircle size={16} /> Pausar
                   </button>
                   <button
                     onClick={() => del(m)}
-                    className="bg-red-500/20 border border-red-500/30 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
+                    className="bg-red-500/20 hover:bg-red-500/25 border border-red-500/30 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
                     title="Borrar"
                   >
-                    <Trash2 size={16}/> Borrar
+                    <Trash2 size={16} /> Borrar
                   </button>
                 </div>
               </div>
@@ -199,8 +223,9 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
         {paused.length > 0 && (
           <>
             <div className="font-black text-lg pt-2 border-t border-white/10">Pausados</div>
+
             <div className="space-y-2">
-              {paused.map(m => (
+              {paused.map((m) => (
                 <div key={m.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 opacity-80">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -211,20 +236,21 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
                         </div>
                       )}
                     </div>
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleActive(m)}
-                        className="bg-white/10 border border-white/10 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
+                        className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
                         title="Reactivar"
                       >
-                        <PlayCircle size={16}/> Reactivar
+                        <PlayCircle size={16} /> Reactivar
                       </button>
                       <button
                         onClick={() => del(m)}
-                        className="bg-red-500/20 border border-red-500/30 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
+                        className="bg-red-500/20 hover:bg-red-500/25 border border-red-500/30 rounded-2xl px-3 py-2 font-black inline-flex items-center gap-2"
                         title="Borrar"
                       >
-                        <Trash2 size={16}/> Borrar
+                        <Trash2 size={16} /> Borrar
                       </button>
                     </div>
                   </div>
@@ -237,6 +263,3 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
     </div>
   );
 }
-
-
-
