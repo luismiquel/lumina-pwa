@@ -108,7 +108,7 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
           <div className="font-black text-lg">Editar / Nuevo</div>
 
           <input
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none"
+            className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
             placeholder="Nombre (obligatorio) — ej: Enalapril"
             value={editing.name}
             onChange={(e) => setEditing({ ...editing, name: e.target.value })}
@@ -116,19 +116,19 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
 
           <div className="grid grid-cols-1 gap-2">
             <input
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
               placeholder="Dosis — ej: 10 mg"
               value={editing.dosage || ""}
               onChange={(e) => setEditing({ ...editing, dosage: e.target.value })}
             />
             <input
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
               placeholder="Horario — ej: 08:00 y 20:00"
               value={editing.schedule || ""}
               onChange={(e) => setEditing({ ...editing, schedule: e.target.value })}
             />
             <textarea
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none min-h-[88px]"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 outline-none min-h-[88px] text-white placeholder:text-white/50 text-white placeholder:text-white/50 caret-white"
               placeholder="Indicaciones del médico (opcional)"
               value={editing.notes || ""}
               onChange={(e) => setEditing({ ...editing, notes: e.target.value })}
@@ -237,4 +237,6 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
     </div>
   );
 }
+
+
 

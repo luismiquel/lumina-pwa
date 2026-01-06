@@ -48,6 +48,10 @@ html[data-senior="1"] body {
 html[data-senior="1"] input,
 html[data-senior="1"] textarea,
 html[data-senior="1"] select {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+
   font-size: 1.05rem;
 }
 
@@ -98,3 +102,22 @@ html[data-senior="1"] :focus-visible {
   /* Evita recortes raros */
   * { overflow: visible !important; }
 }
+
+
+html[data-senior="1"] select option {
+  color: #000;
+}
+
+
+
+html[data-senior="1"] input,
+html[data-senior="1"] textarea {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+html[data-senior="1"] input::placeholder,
+html[data-senior="1"] textarea::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
