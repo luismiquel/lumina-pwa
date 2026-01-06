@@ -111,8 +111,8 @@ html[data-senior="1"] select option {
 
 
 html[data-senior="1"] input,
-html[data-senior="1"] textarea {
-  color: #fff;
+html[data-senior="1"] textarea{
+  color:#fff;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.10);
 }
@@ -120,4 +120,5 @@ html[data-senior="1"] input::placeholder,
 html[data-senior="1"] textarea::placeholder {
   color: rgba(255,255,255,0.5);
 }
+
 
