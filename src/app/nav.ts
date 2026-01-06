@@ -7,7 +7,8 @@
   | "FINDER"
   | "SETTINGS"
   | "GUIDE"
-  | "OVERVIEW" | "MEDS";
+  | "OVERVIEW";
+
 
 
 
