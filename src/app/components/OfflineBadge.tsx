@@ -18,7 +18,7 @@ export default function OfflineBadge() {
 
   return (
     <div
-      className="fixed top-3 left-0 right-0 z-50 flex justify-center px-4"
+      className="fixed top-3 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none"
       role="status"
       aria-live="polite"
     >
@@ -28,3 +28,4 @@ export default function OfflineBadge() {
     </div>
   );
 }
+

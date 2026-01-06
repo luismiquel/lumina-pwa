@@ -126,7 +126,7 @@ const markTaken = (id: string) => {
   if (dueNow.length === 0 && nextUp.length === 0) return null;
 
   return (
-    <div className="fixed bottom-3 left-0 right-0 z-50 flex justify-center px-3">
+    <div className="fixed bottom-3 left-0 right-0 z-50 flex justify-center px-3 pointer-events-none">
       <div className={"max-w-[720px] w-full border border-white/10 rounded-3xl px-4 py-3 shadow-xl " +
         (dueNow.length ? "bg-yellow-400/15" : "bg-white/10")
       }>
@@ -203,5 +203,6 @@ const markTaken = (id: string) => {
     </div>
   );
 }
+
 
 

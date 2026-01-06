@@ -11,7 +11,7 @@ export default function UpdateToast() {
   if (!show) return null;
 
   return (
-    <div className="fixed left-0 right-0 bottom-24 z-50 flex justify-center px-4">
+    <div className="fixed left-0 right-0 bottom-24 z-50 flex justify-center px-4 pointer-events-none">
       <div className="max-w-[560px] w-full glass border border-white/10 rounded-3xl p-4 flex items-center justify-between gap-3">
         <div className="text-sm">
           <div className="font-black">Nueva versión disponible</div>
@@ -37,5 +37,6 @@ export default function UpdateToast() {
     </div>
   );
 }
+
 
 

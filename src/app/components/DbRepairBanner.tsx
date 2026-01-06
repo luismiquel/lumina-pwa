@@ -23,7 +23,7 @@ export default function DbRepairBanner() {
   if (!broken) return null;
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 px-4 flex justify-center">
+    <div className="fixed bottom-4 left-0 right-0 z-50 px-4 flex justify-center pointer-events-none">
       <div className="max-w-[640px] w-full bg-red-500/15 border border-red-400/30 text-red-100 rounded-2xl p-4 shadow-lg">
         <div className="font-black text-base">Base de datos local dañada</div>
         <div className="text-sm opacity-80 mt-1">
@@ -39,4 +39,5 @@ export default function DbRepairBanner() {
     </div>
   );
 }
+
 
