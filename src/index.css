@@ -220,3 +220,22 @@ html body #root [class*="fixed"][class*="inset-0"] {
   background: rgba(255,0,0,0.12) !important;
 }
 
+
+
+
+
+/* ===== DEBUG_FIXED_ALL =====
+   Marca en MAGENTA cualquier elemento fixed. QUITAR al terminar.
+*/
+html body #root .fixed,
+html body #root [class*="fixed"] {
+  outline: 3px solid magenta !important;
+}
+
+/* Marca overlays típicos (absolute inset-0) */
+html body #root .absolute.inset-0,
+html body #root [class*="absolute"][class*="inset-0"] {
+  outline: 3px solid orange !important;
+  background: rgba(255,165,0,0.10) !important;
+}
+
