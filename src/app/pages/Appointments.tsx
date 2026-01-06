@@ -11,8 +11,6 @@ import { buildICS, downloadICS, type IcsEvent } from "@/infra/calendar/ics";
 import { parseICS } from "@/infra/calendar/icsImport";
 
 import { loadDraft, saveDraft, clearDraft } from "@/infra/drafts/drafts";
-import { navTo } from "@/app/navBus";
-
 function toLocalInputValue(d: Date): string {
   // YYYY-MM-DDTHH:mm
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -249,6 +247,8 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
     </div>
   );
 }
+
+
 
 
 
