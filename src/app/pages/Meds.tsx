@@ -71,7 +71,7 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
   const paused  = items.filter(i => !i.active).sort((a,b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="p-6 space-y-6 max-w-3xl mx-auto text-white">
+    <div className="p-6 space-y-6 max-w-3xl mx-auto text-white relative z-[60] pointer-events-auto">
       <div className="glass rounded-3xl p-6 border border-white/10">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -239,3 +239,4 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
     </div>
   );
 }
+
