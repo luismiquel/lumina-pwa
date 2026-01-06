@@ -60,3 +60,5 @@ src/_trash/
 # archivos basura accidentales
 *a del autor*
 
+.vercel
+.env*.local
