@@ -22,6 +22,8 @@ import UpdateToast from "@/app/components/UpdateToast";
 import OfflineBadge from "@/app/components/OfflineBadge";
 import { onNav } from "@/app/navBus";
 import Guide from "@/app/pages/Guide";
+
+import Meds from "@/app/pages/Meds";
 import MedsReminderBar from "@/app/components/MedsReminderBar";
 import DbRepairBanner from "@/app/components/DbRepairBanner";
 export default function AppShell() {
@@ -145,6 +147,7 @@ function NavBtn(props: { ariaLabel: string; senior: boolean; active: boolean; on
     </button>
   );
 }
+
 
 
 

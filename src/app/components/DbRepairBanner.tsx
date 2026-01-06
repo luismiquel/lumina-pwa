@@ -6,7 +6,7 @@ export default function DbRepairBanner() {
 
   useEffect(() => {
     // Si la DB no puede abrirse, mostramos banner
-    openDbSafe({ autoRepair: false }).then(r => {
+    openDbSafe({ autoRepair: false }).then((r: any) => {
       setBroken(!r.ok);
     }).catch(() => setBroken(true));
   }, []);
@@ -39,3 +39,4 @@ export default function DbRepairBanner() {
     </div>
   );
 }
+

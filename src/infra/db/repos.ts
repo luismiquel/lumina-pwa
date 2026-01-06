@@ -116,7 +116,7 @@ export class ShoppingRepo {
   static async list(): Promise<ShoppingItem[]> {
     await ensureMigrated();
     const all = await db.shopping.toArray();
-    return all.map(normalizeShopping).sort((a, b) => {
+    return all.map(normalizeShopping).sort((a: any, b: any) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1;
       return 0;
     });
@@ -161,4 +161,23 @@ export class ShoppingRepo {
   }
 }
 
+
+
+export const MedsRepo = {
+  async list(): Promise<any[]> {
+    const all = await (db as any).meds.toArray();
+    return (all || []).sort((a: any, b: any) => (a?.name || "").localeCompare(b?.name || ""));
+  },
+  async upsert(m: any): Promise<void> {
+    await (db as any).meds.put(m);
+  },
+  async setActive(id: string, active: boolean): Promise<void> {
+    const row = await (db as any).meds.get(id);
+    if (!row) return;
+    await (db as any).meds.put({ ...row, active, updatedAt: Date.now() });
+  },
+  async remove(id: string): Promise<void> {
+    await (db as any).meds.delete(id);
+  },
+};
 
