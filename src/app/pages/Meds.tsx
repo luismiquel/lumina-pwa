@@ -89,10 +89,10 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
           <div>
             <div className={"font-black tracking-tight " + (senior ? "text-3xl" : "text-xl")}>
               <span className="inline-flex items-center gap-2">
-                <Pill size={20} /> Medicamentos
+                <Pill size={20} /> Medicamentos (v2)
               </span>
             </div>
-            <div className="opacity-70 mt-1 text-sm">Lista de medicamentos recetados (uso personal). Sin IA. Sin servidores.</div>
+            <div className="opacity-70 mt-1 text-sm">Lista de Medicamentos (v2) recetados (uso personal). Sin IA. Sin servidores.</div>
             <div className="text-xs opacity-60 mt-2">
               Importante: Lumina no da consejos médicos. Sigue siempre la pauta de tu médico.
             </div>
@@ -176,7 +176,7 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
       <div className="glass rounded-3xl p-6 border border-white/10 space-y-4">
         <div className="font-black text-lg">Activos</div>
 
-        {actives.length === 0 && <div className="opacity-70">No hay medicamentos activos.</div>}
+        {actives.length === 0 && <div className="opacity-70">No hay Medicamentos (v2) activos.</div>}
 
         <div className="space-y-2">
           {actives.map((m) => (
@@ -263,3 +263,4 @@ export default function Meds(props: { senior?: boolean; onClose?: () => void }) 
     </div>
   );
 }
+
