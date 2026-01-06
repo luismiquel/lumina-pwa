@@ -239,3 +239,20 @@ html body #root [class*="absolute"][class*="inset-0"] {
   background: rgba(255,165,0,0.10) !important;
 }
 
+
+
+
+
+/* ===== FIX_OVERLAY_CLICKTHROUGH =====
+   Parche diagnóstico: si una capa fixed/overlay se queda encima,
+   NO debe bloquear inputs.
+   (Si un modal real está abierto, ese modal podría no capturar clics.
+    Si pasa, me lo dices y lo refinamos por selector.)
+*/
+html body #root .fixed,
+html body #root [class*="fixed"],
+html body #root .absolute.inset-0,
+html body #root [class*="absolute"][class*="inset-0"] {
+  pointer-events: none !important;
+}
+
