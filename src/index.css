@@ -210,50 +210,5 @@ html body #root select:-webkit-autofill {
 
 
 
-/* ===== DEBUG_OVERLAY_INSET0 =====
-   Si hay un overlay invisible (fixed inset-0), lo verás en rojo.
-   QUITAR cuando se termine de diagnosticar.
-*/
-html body #root .fixed.inset-0,
-html body #root [class*="fixed"][class*="inset-0"] {
-  outline: 3px solid red !important;
-  background: rgba(255,0,0,0.12) !important;
-}
-
-
-
-
-
-/* ===== DEBUG_FIXED_ALL =====
-   Marca en MAGENTA cualquier elemento fixed. QUITAR al terminar.
-*/
-html body #root .fixed,
-html body #root [class*="fixed"] {
-  outline: 3px solid magenta !important;
-}
-
-/* Marca overlays típicos (absolute inset-0) */
-html body #root .absolute.inset-0,
-html body #root [class*="absolute"][class*="inset-0"] {
-  outline: 3px solid orange !important;
-  background: rgba(255,165,0,0.10) !important;
-}
-
-
-
-
-
-/* ===== FIX_OVERLAY_CLICKTHROUGH =====
-   Parche diagnóstico: si una capa fixed/overlay se queda encima,
-   NO debe bloquear inputs.
-   (Si un modal real está abierto, ese modal podría no capturar clics.
-    Si pasa, me lo dices y lo refinamos por selector.)
-*/
-html body #root .fixed,
-html body #root [class*="fixed"],
-html body #root .absolute.inset-0,
-html body #root [class*="absolute"][class*="inset-0"] {
-  pointer-events: none !important;
-}
 
 
