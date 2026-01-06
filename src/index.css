@@ -206,3 +206,17 @@ html body #root select:-webkit-autofill {
   box-shadow: 0 0 0px 1000px rgba(0,0,0,0.35) inset !important;
   transition: background-color 9999s ease-in-out 0s;
 }
+
+
+
+
+/* ===== DEBUG_OVERLAY_INSET0 =====
+   Si hay un overlay invisible (fixed inset-0), lo verás en rojo.
+   QUITAR cuando se termine de diagnosticar.
+*/
+html body #root .fixed.inset-0,
+html body #root [class*="fixed"][class*="inset-0"] {
+  outline: 3px solid red !important;
+  background: rgba(255,0,0,0.12) !important;
+}
+
