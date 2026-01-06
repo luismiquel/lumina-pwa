@@ -212,3 +212,31 @@ html body #root select:-webkit-autofill {
 
 
 
+
+/* ===== FORCE_FORMS_ROOT =====
+   Fuerza formularios legibles dentro de la app (Windows/Chrome).
+   No afecta fuera de #root.
+*/
+html body #root input,
+html body #root textarea,
+html body #root select {
+  color: #fff !important;
+  background-color: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+html body #root input::placeholder,
+html body #root textarea::placeholder {
+  color: rgba(255,255,255,0.55) !important;
+}
+html body #root select option {
+  background: #fff !important;
+  color: #000 !important;
+}
+html body #root input:-webkit-autofill,
+html body #root textarea:-webkit-autofill,
+html body #root select:-webkit-autofill {
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 0 0px 1000px rgba(0,0,0,0.35) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
