@@ -134,7 +134,16 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
           <p className="opacity-70 mt-1 text-sm">Local · Offline · Sin IA · Sin APIs de pago</p>
         </div>
         <div className="flex gap-2">
-          {props.onHelp && (
+          
+          <button
+            onClick={() => navTo("MEDS")}
+            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl px-4 py-3"
+            aria-label="Medicamentos"
+            title="Medicamentos"
+          >
+            💊 Medicamentos
+          </button>
+{props.onHelp && (
             <button
               onClick={props.onHelp}
               className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl px-4 py-3"
@@ -240,6 +249,7 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
     </div>
   );
 }
+
 
 
 
