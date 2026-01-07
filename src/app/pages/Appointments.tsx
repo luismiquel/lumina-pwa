@@ -136,8 +136,8 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
           
           <button
             className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl px-4 py-3"
- param($m) $m.Value  param($m) $m.Value           >
- param($m) $m.Value           </button>
+          >
+          </button>
 {props.onHelp && (
             <button
               onClick={props.onHelp}
@@ -244,6 +244,7 @@ export default function Appointments(props: { senior?: boolean; onHelp?: () => v
     </div>
   );
 }
+
 
 
 
