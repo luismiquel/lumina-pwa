@@ -163,21 +163,4 @@ export class ShoppingRepo {
 
 
 
-export const MedsRepo = {
-  async list(): Promise<any[]> {
-    const all = await (db as any).meds.toArray();
-    return (all || []).sort((a: any, b: any) => (a?.name || "").localeCompare(b?.name || ""));
-  },
-  async upsert(m: any): Promise<void> {
-    await (db as any).meds.put(m);
-  },
-  async setActive(id: string, active: boolean): Promise<void> {
-    const row = await (db as any).meds.get(id);
-    if (!row) return;
-    await (db as any).meds.put({ ...row, active, updatedAt: Date.now() });
-  },
-  async remove(id: string): Promise<void> {
-    await (db as any).meds.delete(id);
-  },
-};
 
