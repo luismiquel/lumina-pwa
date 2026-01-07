@@ -25,7 +25,7 @@ Los datos **no salen nunca de tu dispositivo**.
 
 ### 📝 Notas
 - Crear, editar y buscar notas
-- Plantillas (Salud, Citas médicas, Medicación)
+- Plantillas (uso personal)
 - Exportación CSV
 
 ### 📅 Citas
@@ -39,16 +39,9 @@ Los datos **no salen nunca de tu dispositivo**.
 - Importar / exportar CSV
 - Uso totalmente offline
 
-### 💊 Medicación
-- Registro y seguimiento de medicación
-- Recordatorios locales
-- Integrado con notas y citas
-- Lumina **no da consejos médicos**
-- No se envían datos fuera del dispositivo
-
 ### 🎙️ Dictado
 - Voz a texto usando el navegador
-- Procesado local (según compatibilidad)
+- Procesado local (según compatibilidad del navegador)
 
 ### 📍 GPS de emergencia
 - Compartir tu ubicación manualmente
@@ -62,7 +55,7 @@ Los datos **no salen nunca de tu dispositivo**.
 
 ### 🛠️ Reparación de la app
 - Limpieza de caché y datos
-- Solución de pantalla blanca o errores
+- Solución de errores comunes (pantalla blanca, corrupción local)
 
 ---
 
