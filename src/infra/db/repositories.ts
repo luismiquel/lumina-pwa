@@ -62,3 +62,4 @@ export const AppointmentsRepo = {
     await db.appointments.delete(id);
   }
 };
+
