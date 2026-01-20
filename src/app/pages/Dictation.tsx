@@ -1,7 +1,8 @@
 ﻿import { useEffect, useRef, useState } from "react";
-import { Mic, Square, Send, Save, FileText } from "lucide-react";
+import { Mic, Square, Send, Save, MapPin } from "lucide-react";
 import { NotesRepo } from "@/infra/db/repositories";
 import { appendToNotes } from "@/app/components/QuickNotes";
+import { getCurrentGPS, formatGPSBlock } from "@/app/utils/gps";
 
 declare global {
   interface Window {
@@ -10,11 +11,11 @@ declare global {
   }
 }
 
-export default function Dictation(props: { senior: boolean }) {
-  const { senior } = props;
+export default function Dictation({ senior }: { senior: boolean }) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
+  const [gpsLoading, setGpsLoading] = useState(false);
   const recRef = useRef<any>(null);
 
   useEffect(() => {
@@ -32,22 +33,15 @@ export default function Dictation(props: { senior: boolean }) {
     rec.onresult = (e: any) => {
       let finalTxt = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalTxt += t + " ";
+        if (e.results[i].isFinal) {
+          finalTxt += e.results[i][0].transcript + " ";
+        }
       }
-      if (finalTxt) {
-        setText((prev) => (prev + finalTxt).trim());
-      }
+      if (finalTxt) setText((p) => (p + finalTxt).trim());
     };
 
-    rec.onerror = () => {
-      setListening(false);
-    };
-
-    rec.onend = () => {
-      setListening(false);
-    };
-
+    rec.onerror = () => setListening(false);
+    rec.onend = () => setListening(false);
     recRef.current = rec;
   }, []);
 
@@ -58,117 +52,81 @@ export default function Dictation(props: { senior: boolean }) {
   };
 
   const stop = () => {
-    if (!recRef.current) return;
-    recRef.current.stop();
+    recRef.current?.stop();
     setListening(false);
   };
 
-  const saveNote = async () => {
-    const content = text.trim();
-    if (!content) return;
-    await NotesRepo.add("Idea (dictado)", content, []);
-    setText("");
-    alert("Guardado en Notas (local).");
+  const addGPS = async () => {
+    try {
+      setGpsLoading(true);
+      const pos = await getCurrentGPS();
+      setText((t) => formatGPSBlock(pos) + t);
+    } catch {
+      alert("No se pudo obtener la ubicación");
+    } finally {
+      setGpsLoading(false);
+    }
   };
 
-  const saveQuickNote = () => {
-    const content = text.trim();
-    if (!content) return;
-    appendToNotes(content);
+  const saveNote = async () => {
+    if (!text.trim()) return;
+    await NotesRepo.add("Nota con GPS", text.trim(), []);
     setText("");
-    alert("Añadido a Notas rápidas.");
+    alert("Nota guardada");
+  };
+
+  const saveQuick = () => {
+    if (!text.trim()) return;
+    appendToNotes(text.trim());
+    setText("");
   };
 
   const shareWhatsApp = () => {
-    const content = text.trim();
-    if (!content) return;
-    const url = "https://wa.me/?text=" + encodeURIComponent(content);
-    window.open(url, "_blank");
+    if (!text.trim()) return;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
   };
 
   return (
     <div className="space-y-4">
-      <div className="glass rounded-3xl p-6 border border-white/10">
-        <h2
-          className={
-            "font-black flex items-center gap-2 " +
-            (senior ? "text-3xl" : "text-xl")
-          }
-        >
-          <Mic /> Dictado de ideas
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <h2 className={"font-black flex gap-2 " + (senior ? "text-3xl" : "text-xl")}>
+          <Mic /> Dictado con ubicación
         </h2>
-
-        {!supported && (
-          <p className="mt-3 opacity-70">
-            Este navegador no soporta SpeechRecognition. Puedes escribir
-            manualmente.
-          </p>
-        )}
 
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className={
-            "mt-4 w-full min-h-[180px] bg-white/5 border border-white/10 rounded-2xl p-4 outline-none " +
-            (senior ? "text-lg" : "text-sm")
-          }
+          className="mt-4 w-full min-h-[180px] rounded-2xl bg-black/40 p-4 border border-white/10 outline-none"
           placeholder="Dicta o escribe aquí…"
         />
 
         <div className="grid grid-cols-2 gap-2 mt-4">
           {!listening ? (
-            <button
-              disabled={!supported}
-              onClick={start}
-              className="bg-[#00f2ff] text-black font-black rounded-2xl py-4 disabled:opacity-30"
-            >
-              <span className="inline-flex items-center justify-center gap-2">
-                <Mic /> Empezar
-              </span>
+            <button onClick={start} disabled={!supported} className="btn-primary">
+              <Mic /> Empezar
             </button>
           ) : (
-            <button
-              onClick={stop}
-              className="bg-red-400 text-black font-black rounded-2xl py-4"
-            >
-              <span className="inline-flex items-center justify-center gap-2">
-                <Square /> Parar
-              </span>
+            <button onClick={stop} className="btn-danger">
+              <Square /> Parar
             </button>
           )}
 
-          <button
-            onClick={saveNote}
-            className="bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4"
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <Save /> Guardar
-            </span>
+          <button onClick={addGPS} disabled={gpsLoading} className="btn-secondary">
+            <MapPin /> {gpsLoading ? "Localizando…" : "Añadir ubicación"}
           </button>
 
-          <button
-            onClick={saveQuickNote}
-            className="col-span-2 bg-white/10 hover:bg-white/15 border border-white/10 font-black rounded-2xl py-4"
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <FileText /> Añadir a Notas rápidas
-            </span>
+          <button onClick={saveNote} className="btn-secondary col-span-2">
+            <Save /> Guardar nota
           </button>
 
-          <button
-            onClick={shareWhatsApp}
-            className="col-span-2 bg-green-500 text-black font-black rounded-2xl py-4"
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <Send /> Enviar a WhatsApp
-            </span>
+          <button onClick={saveQuick} className="btn-secondary col-span-2">
+            Guardar en notas rápidas
+          </button>
+
+          <button onClick={shareWhatsApp} className="btn-whatsapp col-span-2">
+            <Send /> Enviar WhatsApp
           </button>
         </div>
-
-        <p className="mt-3 text-xs opacity-40">
-          Nota: el dictado depende del motor del navegador (sin claves, sin pagos).
-          En algunos dispositivos puede variar.
-        </p>
       </div>
     </div>
   );
