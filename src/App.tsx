@@ -3,6 +3,7 @@ import ErrorBoundary from "@/app/components/ErrorBoundary";
 
 import { useSWUpdate } from "./shared/useSWUpdate";
 import { useOnline } from "./shared/useOnline";
+import { repairApp } from "./swRegister";
 
 export default function App() {
   const { ready: updateReady, applyUpdate } = useSWUpdate();
@@ -26,7 +27,7 @@ export default function App() {
       )}
 
       {/* Banner UPDATE PWA */}
-      {updateReady && (
+      {updateReady === true && (
         <div
           style={{
             position: "fixed",
@@ -59,6 +60,33 @@ export default function App() {
           </button>
         </div>
       )}
+
+      {/* Botón REPAIR APP */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: updateReady === true ? 72 : 16,
+          right: 16,
+          zIndex: 9999,
+        }}
+      >
+        <button
+          onClick={repairApp}
+          title="Reparar aplicación (borra caché y reinicia)"
+          style={{
+            background: "#444",
+            color: "#fff",
+            border: "none",
+            padding: "6px 10px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            cursor: "pointer",
+            opacity: 0.85,
+          }}
+        >
+          Repair App
+        </button>
+      </div>
 
       {/* TU APP REAL */}
       <AppShell />
