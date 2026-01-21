@@ -33,4 +33,10 @@
     }
   },
 
-  "include": ["src]()
+  "include": ["src"],
+
+  "exclude": [
+    "src/_trash",
+    "src/_legacy"
+  ]
+}
